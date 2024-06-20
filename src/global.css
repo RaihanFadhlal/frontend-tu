@@ -1,0 +1,10 @@
+.body {
+  font-family: 'Lato', sans-serif;
+  font-weight: 800;
+}
+.v-text-field .v-label,
+.v-text-field .v-input__control input,
+.v-autocomplete .v-input__control,
+.v-select .v-input__control  {
+  font-weight: bold;
+}
