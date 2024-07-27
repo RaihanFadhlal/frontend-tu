@@ -4,6 +4,8 @@ import App from './App.vue'
 import './global.css'
 //vue routes
 import router from './router'
+import store from './store' 
+import axios from './axios';
 
 //vuetify
 import 'vuetify/styles'
@@ -46,8 +48,15 @@ const vuetify = createVuetify({
   },
 })
 
+const storedToken = localStorage.getItem('accessToken')
+if (storedToken) {
+  store.commit('setAccessToken', storedToken)
+  axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
+}
+
 createApp(App)
   .use(router)
+  .use(store)
   .use(vuetify)
   .use(i18n)
   .mount('#app')

@@ -2,11 +2,11 @@
   <v-app>
     <v-main class="body">
       <NavBar />
-      <v-row class="explore-row d-flex ml-15 mt-4">
-        <v-col cols="5" sm="4" md="3" lg="2">
+      <v-row class="explore-row d-flex ml-2 ml-sm-15 mt-4">
+        <v-col cols="6" sm="4" md="3" lg="2">
           <v-img :src="UploadIcon('../../assets/explore/', 'logo.png')"></v-img>
         </v-col>
-        <v-col>
+        <v-col cols="6">
           <v-dialog max-width="800">
             <template v-slot:activator="{ props: activatorProps }">
               <v-btn
@@ -69,7 +69,7 @@
                     <v-col cols="5" lg="4">
                       <v-img
                         class="my-auto"
-                        :src="UploadIcon('../../assets/explore/', product.img)"
+                        :src="product.image"
                       >
                       </v-img>
                     </v-col>
@@ -119,6 +119,7 @@ import func from "../../function";
 import NavBar from "../../components/Navbar.vue";
 import FooterApp from "../../components/FooterApp.vue";
 import SearchProduct from "./SearchProduct.vue";
+import axios from "../../axios";
 
 export default {
   name: "ExploreApp",
@@ -142,38 +143,7 @@ export default {
         href: "/",
       },
     ],
-    products: [
-      {
-        name: "Takaful Safari Umroh dan Haji Khusus",
-        price: "60000",
-        img: "kabah1.png",
-      },
-      {
-        name: "Takaful Multitrip",
-        price: "170000",
-        img: "kabah2.png",
-      },
-      {
-        name: "Takaful Safari Umroh Non Covid",
-        price: "60000",
-        img: "kabah1.png",
-      },
-      {
-        name: "Takaful Safari Umroh Non Covid (50 Ribu)",
-        price: "50000",
-        img: "kabah1.png",
-      },
-      {
-        name: "Takaful Safari Umroh Non Covid (Plus Zam Zam)",
-        price: "85000",
-        img: "kabah1.png",
-      },
-      {
-        name: " Takaful Safari Umroh Plus Covid New Normal",
-        price: "125000",
-        img: "kabah1.png",
-      },
-    ],
+    products: [],
     destination: "",
   }),
 
@@ -195,47 +165,36 @@ export default {
       this.dialog = true;
     },
     ChooseProduct(product) {
-      localStorage.setItem("local_product_id", product.id);
-      localStorage.setItem("local_product_name", product.name);
-      this.$router.push("/detail?prod=" + product.id);
+      localStorage.setItem("product_id", product.code);
+      localStorage.setItem("product_name", product.name);
+      this.$router.push("/detail?id=" + product.code);
     },
-    GetProduct(query) {
-      let formdata = {
-        path: query,
-      };
-      let param = func.ParamPOST(formdata);
-      axios
-        .post("http://localhost:82/apiSearchSafariProduct", param, {
-          headers: {
-            "Content-Type": "application/json",
+    async GetProduct(country) {
+      try {
+        const response = await axios.get("/products", {
+          params: {
+            country: country,
           },
-        })
-        .then((response) => {
-          let feedback = response.data;
-          if (feedback.length > 0) {
-            if (feedback[0].status === true) {
-              this.products = feedback.map((item) => item.data);
-            } else {
-              this.DialogActive("Gagal1 :  ", feedback[0].message);
-            }
-          } else {
-            this.DialogActive("Gagal2");
-          }
-        })
-        .catch((e) => {
-          this.DialogActive("Gagal3 :", e);
         });
+        if (response.data.status) {
+          this.products = response.data.data;
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
     },
   },
 
-  created() {
-    // const form = JSON.parse(localStorage.getItem("form_data")) || {};
-    // this.GetProduct(form.destination);
-    // if (form.destination == null || form.destination == "") {
-    //   this.destination = "Semua";
-    // } else {
-    //   this.destination = form.destination;
-    // }
+  async created() {
+    const form = JSON.parse(localStorage.getItem("form_safari")) || {};
+    if (form.destination == null || form.destination == "") {
+      this.destination = "";
+    } else {
+      this.destination = form.destination;
+    }
+    await this.GetProduct(this.destination);
   },
 };
 </script>
@@ -255,7 +214,6 @@ export default {
 @media screen and (max-width: 600px) {
   .explore-button {
     margin-top: 10px;
-    margin-left: 10px;
     width: 200px;
   }
   .bc {

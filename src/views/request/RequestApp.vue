@@ -1,16 +1,20 @@
 <template>
   <v-app>
-    <v-stepper v-model="e1" class="body"> 
+    <v-stepper model="e1" class="body" :mobile="$vuetify.display.xs">
       <v-stepper-header>
-        <v-stepper-item title="Form Peserta" value="1" color="001F48"></v-stepper-item>
+        <v-stepper-item
+          title="Form Peserta"
+          value="1"
+          color="001F48"
+        ></v-stepper-item>
 
         <v-divider></v-divider>
 
-        <v-stepper-item title="Hasil dan Pembayaran" value="2" color="001F48"></v-stepper-item>
-
-        <v-divider></v-divider>
-
-        <v-stepper-item title="Pembayaran" value="3" color="001F48"></v-stepper-item>
+        <v-stepper-item
+          title="Hasil dan Pembayaran"
+          value="2"
+          color="001F48"
+        ></v-stepper-item>
       </v-stepper-header>
 
       <v-stepper-window>
@@ -27,23 +31,23 @@
             <v-col class="hidden-xs" cols="4"></v-col>
             <v-col>
               <v-img
-                class="hidden-sm-and-up rounded-lg"
+                class="mt-10 hidden-sm-and-up rounded-lg"
                 contain
                 :src="UploadIcon('../../assets/request/', 'mobile.png')"
               ></v-img>
-              <v-row class="mt-3 mt-sm-1 mb-4 justify-center">
+              <v-row class="mt-14 mb-4 justify-center">
                 <v-icon class="hidden-xs mr-2 ml-3" color="#001F48"
                   >mdi-book</v-icon
                 >
                 <span class="blue-text">{{ product }}</span>
               </v-row>
-              <v-row class="mt-4 mb-3">
+              <v-row class="mt-7 mb-3">
                 <v-icon class="mr-2 mb-2 ml-3" color="#001F48"
                   >mdi-airplane</v-icon
                 >
                 <span class="blue-text">Data Perjalanan</span>
               </v-row>
-              <v-form ref="form" class="body">
+              <v-form v-model="form" class="body">
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-autocomplete
@@ -213,13 +217,12 @@
                     >
                       <template v-slot:activator="{ props }">
                         <v-text-field
+                          variant="outlined"
                           v-model="formatted_date3"
                           label="Tanggal Lahir"
                           prepend-inner-icon="mdi-calendar"
                           v-bind="props"
-                          variant="outlined"
                           readonly
-                          color="#001F48"
                           :rules="[Required]"
                         ></v-text-field>
                       </template>
@@ -331,23 +334,19 @@
                     </v-col>
                   </v-row>
                 </div>
-                <v-row class="ma-3">
-                  <v-btn
-                    class="mr-2"
-                    style="font-weight: 600"
-                    @click="CancelRequest"
-                  >
-                    Batal
-                  </v-btn>
-                  <v-btn
-                    color="orange"
-                    style="font-weight: 600"
-                    @click="validate"
-                  >
-                    Selanjutnya
-                  </v-btn>
-                </v-row>
               </v-form>
+              <v-row class="ma-3">
+                <v-btn
+                  class="mr-2"
+                  style="font-weight: 600"
+                  @click="CancelRequest"
+                >
+                  Batal
+                </v-btn>
+                <v-btn color="orange" style="font-weight: 600" @click="enroll">
+                  Selanjutnya
+                </v-btn>
+              </v-row>
             </v-col>
           </v-card>
         </v-stepper-window-item>
@@ -461,7 +460,7 @@
             </v-form>
 
             <v-row class="ma-3">
-              <v-btn class="mr-2" style="font-weight: 600" @click="e1 = 1">
+              <v-btn class="mr-2" style="font-weight: 600" @click="e1 = 0">
                 Kembali
               </v-btn>
               <v-dialog v-model="dialog" persistent max-width="360px">
@@ -500,7 +499,6 @@
             </v-row>
           </v-card>
         </v-stepper-window-item>
-        <v-stepper-window-item value="3"> </v-stepper-window-item>
       </v-stepper-window>
     </v-stepper>
     <v-snackbar
@@ -521,6 +519,7 @@
 
 <script>
 import func from "../../function";
+import axios from "axios";
 
 export default {
   name: "RequestApp",
@@ -529,7 +528,7 @@ export default {
       isFormValid: true,
       valuee: null,
       label: "Field 1",
-      e1: 1,
+      e1: 0,
       id: "",
       dialog: false,
       country: ["Saudi Arabia", "Turki"],
@@ -637,18 +636,31 @@ export default {
         "Papua Selatan",
         "Papua Barat Daya",
       ],
+      orderid: "TrxTsuhkb1-12345",
+      grossamt: 30000,
+      fname: "Raihan Aziz",
+      email: "raihanfadhlal@gmail.com",
+      phone: "081281132263",
+      id: "TSUHKB1",
+      price: 30000,
+      qty: 1,
+      name: "Takaful Safari Umroh dan Haji Khusus",
+
+      token:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhaWhhbjIwMDA3QG1haWwudW5wYWQuYWMuaWQiLCJleHAiOjE3MjE5NjA1OTZ9.8_2oBzd88iqDkHFivx0PsKf-idUWd3ObmGkByWcxwyA",
+      trx_id: "",
     };
   },
   computed: {
     formatted_date() {
       return this.selected_date
         ? func.FormatOutputDate(this.selected_date)
-        : "";
+        : "Jumat, 26 Juli 2024";
     },
     formatted_date2() {
       return this.selected_date2
         ? func.FormatOutputDate(this.selected_date2)
-        : "";
+        : "Rabu, 31 Juli 2024";
     },
     formatted_date3() {
       return this.selected_date3
@@ -669,6 +681,93 @@ export default {
     },
   },
   methods: {
+    async enroll() {
+      try {
+        const response = await axios.post(
+          "http://localhost:9000/req-prod",
+          {
+            product_code: "TSUHKB1",
+            product_name: "Takaful Safari Umroh dan Haji Khusus",
+            capacity: 3,
+            product_price: 60000,
+            phone: "081281132263",
+            from: "DKI Jakarta",
+            destination: "Saudi Arabia",
+            start_date: "2024-08-01",
+            end_date: "2024-08-05",
+            contribution: "Basic",
+            fullname: "Raihan Aziz",
+            birthdate: "2001-10-10",
+            birthplace: "Bogor",
+            gender: "M",
+            passport: "A 1234567 ",
+            heir: "Didi Iskandar",
+            others: [
+              {
+                fullname: "Fulan bin Fulan",
+                birthdate: "2000-10-10",
+              },
+              {
+                fullname: "Harta Rama",
+                birthdate: "2002-10-10",
+              },
+            ],
+          },
+          {
+            headers: {
+              Authorization: `Bearer ` + this.token,
+            },
+          }
+        );
+        if (response.data.status) {
+          this.trx_id = response.data.trx_id;
+          this.pay();
+        } else {
+          console.log("Enrollment failed: ", response.data.message);
+          alert("Enrollment failed");
+        }
+      } catch (error) {
+        console.log("Error: ", error);
+        alert("error 1");
+      }
+    },
+    async pay() {
+      try {
+        const response = await axios.post(
+          "http://localhost:9000/generate-trx",
+          {
+            trx_id: this.trx_id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ` + this.token,
+            },
+          }
+        );
+
+        const result = response.data;
+        window.snap.pay(result.token, {
+          onSuccess: function (result) {
+            alert("Payment success!");
+            console.log(result);
+          },
+          onPending: function (result) {
+            alert("Waiting for your payment!");
+            console.log(result);
+          },
+          onError: function (result) {
+            alert("Payment failed!");
+            console.log(result);
+          },
+          onClose: function () {
+            alert("You closed the popup without finishing the payment");
+          },
+        });
+      } catch (error) {
+        console.log("Error: ", error);
+        alert("Failed to initiate payment");
+      }
+    },
     CancelRequest() {
       this.$router.go(-1);
     },
@@ -711,13 +810,11 @@ export default {
       }
     },
     async validate() {
-      const { valid } = await this.$refs.form.validate();
-
-      if (valid) {
-        this.e1 = 1;
-      } else {
-        this.snackbar = true;
-      }
+      // if (this.form) {
+      this.e1 = 1;
+      // } else {
+      //   this.snackbar = true;
+      // }
     },
     CheckPrice() {
       this.$refs.bro.validate().then((success) => {
@@ -762,6 +859,28 @@ export default {
       ];
       this.table.push(...items);
     },
+  },
+  created() {
+    // this.email = func.UsersEmail();
+    // this.id = func.UsersID();
+    // this.GetDetails(this.id)
+    if (!localStorage.getItem("form_data")) {
+      localStorage.setItem("form_data", JSON.stringify(this.form_data));
+    }
+    const form = JSON.parse(localStorage.getItem("form_data")) || {};
+    this.capacity = form.capacity.toString();
+    this.form_data.from = form.from;
+    this.form_data.destination = form.destination;
+    this.form_data.date_start = form.date_start;
+    this.form_data.date_end = form.date_end;
+    this.form_data.type = form.type;
+
+    // this.product = localStorage.getItem("local_product_name");
+    // this.product_id = localStorage.getItem("local_product_id");
+    // this.contribution = JSON.parse(localStorage.getItem("array_ctr"));
+    // this.country = JSON.parse(localStorage.getItem("array_dst"));
+
+    // this.GetProvinces()
   },
 };
 </script>

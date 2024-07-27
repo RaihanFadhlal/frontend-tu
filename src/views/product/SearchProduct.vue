@@ -13,7 +13,7 @@
         <v-icon left class="mr-2 mb-1" color="#001F48">mdi-map-search</v-icon>
         Cari Asuransi
       </div>
-      <v-form ref="form" class="body">
+      <v-form v-model="form" class="body">
         <v-row justify="center">
           <v-col cols="12" sm="4" class="py-0">
             <v-autocomplete
@@ -32,7 +32,7 @@
               variant="outlined"
               v-model="form_data.destination"
               label="Destinasi"
-              :items="country"
+              :items="countries"
               clearable
               prepend-inner-icon="mdi-map-marker"
               color="#001F48"
@@ -109,24 +109,27 @@
           <v-col cols="12" sm="6" class="py-0"> </v-col>
         </v-row>
         <v-row justify="center">
-          <v-btn class="mt-3" color="#F57C00" @click="GetData"> Cek Disini </v-btn>
+          <v-btn color="#F57C00" @click="GetData">
+            <span class="body">Cek Disini</span>
+          </v-btn>
         </v-row>
       </v-form>
     </v-card-text>
     <v-card-actions class="pt-0">
       <v-spacer></v-spacer>
-      <v-btn class="font-weight-bold" color="#001F48" text @click="Reload">
-        Tutup
+      <v-btn color="#001F48" @click="Reload">
+        <span class="body">Tutup</span>
       </v-btn>
     </v-card-actions>
     <!-- Dialog -->
-    <v-dialog v-model="dialog" max-width="400px">
-      <v-card>
-        <v-card-title class="text-h5"
-          ><v-icon left color="red">mdi-alert-circle-outline</v-icon
+    <v-dialog persistent v-model="dialog" max-width="400px">
+      <v-card class="body">
+        <v-card-title class="font-weight-bold mt-2"
+          ><v-icon class="mr-2 mb-1" left color="red"
+            >mdi-alert-circle-outline</v-icon
           >{{ dialog_title }}</v-card-title
         >
-        <v-card-text class="text-h6">
+        <v-card-text class="pt-1 ml-4" style="font-size: large">
           {{ dialog_text }}
         </v-card-text>
         <v-card-actions class="justify-end">
@@ -138,6 +141,7 @@
 </template>
 
 <script>
+import axios from "../../axios"
 import func from "../../function";
 
 export default {
@@ -148,7 +152,7 @@ export default {
   components: {},
   data() {
     return {
-      country: ["Saudi Arabia", "Turki"],
+      countries: "",
       dialog: false,
       formatted_prov: [
         "Aceh",
@@ -222,16 +226,32 @@ export default {
         : "";
     },
   },
-  created() {
-    //   const form = JSON.parse(localStorage.getItem("form_data")) || {}
-    //   this.form_data.capacity = form.capacity.toString()
-    //   this.form_data.from = form.from
-    //   this.form_data.destination = form.destination
-    //   this.form_data.date_start = form.date_start
-    //   this.form_data.date_end = form.date_end
-    //   this.form_data.type = form.type
+  async created() {
+    await this.GetCountries()
+    const form = JSON.parse(localStorage.getItem("form_safari")) || {};
+    this.form_data.capacity = form.capacity.toString();
+    this.form_data.from = form.from;
+    this.form_data.destination = form.destination;
+    this.form_data.date_start = form.date_start;
+    this.form_data.date_end = form.date_end;
+    this.form_data.type = form.type;
+
+    this.selected_date = new Date(this.form_data.date_start);
+    this.selected_date2 = new Date(this.form_data.date_end);
   },
   methods: {
+    async GetCountries() {
+      try {
+        const response = await axios.get("/countries")
+        if (response.data.status) {
+          this.countries = response.data.data.countries.split(',').map(country => country.trim());
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
+    },
     UpdateDate(value) {
       this.form_data.date_start = func.FormatDate(value);
       this.date_menu = false;
@@ -242,9 +262,9 @@ export default {
     },
     ValidateDateEnd(value) {
       if (new Date(value) > new Date(this.form_data.date_start) || !value) {
-        return true
+        return true;
       } else {
-        return "Input tanggal setelah keberangkatan!"
+        return "Input tanggal setelah keberangkatan!";
       }
     },
     DialogActive(title, msg) {
@@ -255,14 +275,13 @@ export default {
     OnlyNumbers(value) {
       const isnumber = /^[+\d]+$/.test(value);
       const iszero = value !== "0";
-
       return (isnumber && iszero) || "Input data salah";
     },
     GetData() {
-      if (!this.$refs.form.validate()) {
+      if (!this.form) {
         this.DialogActive("Input Data Salah", "Mohon isi form dengan benar!");
       } else {
-        localStorage.setItem("form_data", JSON.stringify(this.form_data));
+        localStorage.setItem("form_safari", JSON.stringify(this.form_data));
         if (this.$route.path === "/safari") {
           location.reload();
         } else {

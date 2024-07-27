@@ -9,11 +9,11 @@
             <h1>Selamat Datang!</h1>
             <h2>Cari Asuransi Apa?</h2>
 
-            <div class="d-flex my-5">
+            <div class="d-sm-flex my-5">
               <v-card
                 v-for="(product, i) in products"
                 :key="i"
-                class="d-flex mx-4"
+                class="d-flex mx-4 mb-4"
                 style="border-radius: 16px"
               >
                 <v-img
@@ -31,7 +31,7 @@
                         height="30px"
                         :color="product.color"
                         class="font-weight-bold text-white mt-2"
-                        >Cari Produk</v-btn
+                        >Lihat Produk</v-btn
                       >
                     </template>
                     <template v-slot:default="{ isActive }">
@@ -43,17 +43,17 @@
             </div>
           </v-card>
         </v-col>
-        
+
         <!-- Why Takaful -->
         <v-col cols="11" class="mx-auto mt-10">
-          <v-card flat color="#E3F2FD" class="d-flex">
-            <v-col class="why-takaful" cols="6">
+          <v-card flat color="#E3F2FD" class="d-md-flex">
+            <v-col class="why-takaful" cols="12" md="6" lg="6">
               Kenapa Harus Takaful Umum ?
             </v-col>
-            <v-col cols="6">
+            <v-col cols="12" md="6" lg="6">
               <v-container>
                 <v-row>
-                  <v-col v-for="(item, i) in reasons" :key="i" cols="5">
+                  <v-col v-for="(item, i) in reasons" :key="i" cols="12" md="5">
                     <v-card
                       class="card2 d-flex pa-2"
                       :style="{ borderLeft: '4px solid ' + item.color }"
@@ -265,5 +265,15 @@ export default {
   width: 230px;
   height: 150px;
   margin: 5px;
+}
+
+@media screen and (max-width: 600px) {
+  .why-takaful {
+  font-size: 40px;
+  margin-top: 20px;
+}
+.card2 {
+  margin-left: 35px;
+}
 }
 </style>

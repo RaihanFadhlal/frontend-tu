@@ -1,12 +1,12 @@
 <template>
   <v-app>
     <v-main class="body">
-      <NavBar />
-      <v-row class="explore-row d-flex ml-15 mt-4">
-        <v-col cols="5" sm="4" md="3" lg="2">
+      <Navbar />
+      <v-row class="explore-row d-flex ml-2 ml-sm-15 mt-4">
+        <v-col cols="6" sm="4" md="3" lg="2">
           <v-img :src="UploadIcon('../../assets/explore/', 'logo.png')"></v-img>
         </v-col>
-        <v-col>
+        <v-col cols="6">
           <v-dialog max-width="800">
             <template v-slot:activator="{ props: activatorProps }">
               <v-btn
@@ -35,7 +35,7 @@
         <v-row>
           <v-col cols="12" md="6" lg="3">
             <v-img
-              :src="UploadIcon('../../assets/explore/', 'kabah1.png')"
+              :src="image"
             ></v-img>
             <v-dialog width="600" v-model="dialog_tnc">
               <template v-slot:activator="{ props: activatorProps }">
@@ -44,7 +44,7 @@
                     color="#3EC2D1"
                     dark
                     v-bind="activatorProps"
-                    class="hidden-xs-only mt-5 rounded-lg text-white"
+                    class="hidden-xs mt-5 rounded-lg text-white"
                   >
                     Syarat dan Ketentuan
                   </v-btn>
@@ -87,7 +87,7 @@
           </v-col>
           <v-col cols="12" md="6">
             <div class="product-name ml-2 mt-2 mt-sm-0">{{ name }}</div>
-            <div class="product-detail ml-3 mb-1">{{ detail }}</div>
+            <div class="product-detail ml-3 mb-1">{{ desc }}</div>
             <div class="cost mt-5 mb-1 ml-2">Biaya</div>
             <v-card class="ml-2">
               <v-select
@@ -103,8 +103,8 @@
                 :items="table[selected_type]"
                 :headers="table_headers"
               >
-                <template v-slot:[`item.min-max`]="{ item }">
-                  {{ `${item.min} - ${item.max} hari` }}
+                <template v-slot:[`item.day_min-day_max`]="{ item }">
+                  {{ `${item.day_min} - ${item.day_max} hari` }}
                 </template>
                 <template v-slot:[`item.price`]="{ item }">
                   {{
@@ -280,20 +280,21 @@
 
 <script>
 import func from "../../function";
-import NavBar from "../../components/Navbar.vue";
+import Navbar from "../../components/Navbar.vue";
 import FooterApp from "../../components/FooterApp.vue";
 import SearchProduct from "./SearchProduct.vue";
+import axios from "../../axios";
 
 export default {
   name: "DetailApp",
   components: {
-    NavBar,
+    Navbar,
     FooterApp,
     SearchProduct,
   },
   data: () => {
     return {
-      check_login: null,
+      check_login: true,
       dialog_search: false,
       dialog_tnc: false,
       form_data: {
@@ -325,7 +326,7 @@ export default {
       table_headers: [
         {
           title: "Periode",
-          key: "min-max",
+          key: "day_min-day_max",
           sortable: false,
         },
         {
@@ -335,139 +336,138 @@ export default {
         },
       ],
       tab: null,
-      dialog_tnc: false,
       dialog_login: false,
 
-      name: "Takaful Safari Umroh dan Haji Khusus",
-      detail:
-        "Memberikan santunan terhadap risiko pembatalan keberangkatan, meninggal dunia, cacat tetap dan biaya pengobatan Anda ketika Ibadah Umroh dan Haji Khusus",
+      name: "",
+      desc: "",
+      image: "",
       tab: null,
       table: {
         Basic: [
           {
-            min: 1,
-            max: 10,
+            day_min: 1,
+            day_max: 10,
             price: 60000,
           },
           {
-            min: 11,
-            max: 15,
+            day_min: 11,
+            day_max: 15,
             price: 65000,
           },
           {
-            min: 16,
-            max: 20,
+            day_min: 16,
+            day_max: 20,
             price: 70000,
           },
           {
-            min: 21,
-            max: 25,
+            day_min: 21,
+            day_max: 25,
             price: 75000,
           },
           {
-            min: 26,
-            max: 30,
+            day_min: 26,
+            day_max: 30,
             price: 85000,
           },
           {
-            min: 31,
-            max: 40,
+            day_min: 31,
+            day_max: 40,
             price: 100000,
           },
         ],
         Gold: [
           {
-            min: 1,
-            max: 10,
+            day_min: 1,
+            day_max: 10,
             price: 85000,
           },
           {
-            min: 11,
-            max: 15,
+            day_min: 11,
+            day_max: 15,
             price: 90000,
           },
           {
-            min: 16,
-            max: 20,
+            day_min: 16,
+            day_max: 20,
             price: 95000,
           },
           {
-            min: 21,
-            max: 25,
+            day_min: 21,
+            day_max: 25,
             price: 100000,
           },
           {
-            min: 26,
-            max: 30,
+            day_min: 26,
+            day_max: 30,
             price: 110000,
           },
           {
-            min: 31,
-            max: 40,
+            day_min: 31,
+            day_max: 40,
             price: 125000,
           },
         ],
         Platinum: [
           {
-            min: 1,
-            max: 10,
+            day_min: 1,
+            day_max: 10,
             price: 115000,
           },
           {
-            min: 11,
-            max: 15,
+            day_min: 11,
+            day_max: 15,
             price: 120000,
           },
           {
-            min: 16,
-            max: 20,
+            day_min: 16,
+            day_max: 20,
             price: 125000,
           },
           {
-            min: 21,
-            max: 25,
+            day_min: 21,
+            day_max: 25,
             price: 130000,
           },
           {
-            min: 26,
-            max: 30,
+            day_min: 26,
+            day_max: 30,
             price: 140000,
           },
           {
-            min: 31,
-            max: 40,
+            day_min: 31,
+            day_max: 40,
             price: 155000,
           },
         ],
         Titanium: [
           {
-            min: 1,
-            max: 10,
+            day_min: 1,
+            day_max: 10,
             price: 140000,
           },
           {
-            min: 11,
-            max: 15,
+            day_min: 11,
+            day_max: 15,
             price: 150000,
           },
           {
-            min: 16,
-            max: 20,
+            day_min: 16,
+            day_max: 20,
             price: 160000,
           },
           {
-            min: 21,
-            max: 25,
+            day_min: 21,
+            day_max: 25,
             price: 170000,
           },
           {
-            min: 26,
-            max: 30,
+            day_min: 26,
+            day_max: 30,
             price: 185000,
           },
           {
-            min: 31,
-            max: 40,
+            day_min: 31,
+            day_max: 40,
             price: 200000,
           },
         ],
@@ -580,61 +580,42 @@ export default {
         this.dialog_login = true;
       }
     },
-    GetDetails(productid) {
-      let formdata = {
-        id: productid,
-      };
-      let param = func.ParamPOST(formdata);
-      axios
-        .post(func.UrlPOST("apiSafariProduct"), param, {
-          headers: {
-            "Content-Type": "application/json",
+    async GetDetails(id) {
+      try {
+        const response = await axios.get("/detail", {
+          params: {
+            id: id,
           },
-        })
-        .then((response) => {
-          let feedback = response.data;
-          if (feedback.length > 0) {
-            if (feedback[0].status === true) {
-              this.name = feedback[0].data.name;
-              this.detail = feedback[0].data.desc;
-              this.image = feedback[0].data.image;
-              this.terms = feedback[0].data.tnc;
-              this.table = feedback[0].data.price;
-              this.contribution = feedback[0].data.type;
-              this.benefits = feedback[0].data.benefits;
-              this.destination = feedback[0].data.destination;
-            } else {
-              this.DialogActive("Gagal memuat detail1 : ", feedback[0].message);
-              console.log("1");
-            }
-          } else {
-            this.DialogActive("Gagal memuat detail2");
-          }
-        })
-        .catch((e) => {
-          this.DialogActive("Gagal memuat detail3 : ", e);
-          console.log(e);
         });
+        if (response.data.status) {
+          this.name = response.data.data.name
+          this.desc = response.data.data.desc
+          this.image = response.data.data.image
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
     },
   },
 
-  created() {
-    //   this.check_login = func.CheckLogin()
-    //   const param = this.$route.query.prod
-    //   this.GetDetails(param)
-    //   if (!localStorage.getItem("form_data")) {
-    //     localStorage.setItem("form_data", JSON.stringify(this.form_data))
-    //   }
-    //   const form = JSON.parse(localStorage.getItem("form_data")) || {}
-    //   if (form.capacity >= 1) {
-    //     this.form_data.capacity = form.capacity
-    //     this.form_data.from = form.from
-    //     this.form_data.destination = form.destination
-    //     this.form_data.date_start = form.date_start
-    //     this.form_data.date_end = form.date_end
-    //   } else {
-    //     this.form_data.capacity = 1
-    //   }
+  async created() {
+      const param = this.$route.query.id
+      await this.GetDetails(param)
+      if (!localStorage.getItem("form_data")) {
+        localStorage.setItem("form_data", JSON.stringify(this.form_data))
+      }
+      const form = JSON.parse(localStorage.getItem("form_data")) || {}
+      if (form.capacity >= 1) {
+        this.form_data.capacity = form.capacity
+        this.form_data.from = form.from
+        this.form_data.destination = form.destination
+        this.form_data.date_start = form.date_start
+        this.form_data.date_end = form.date_end
+      } else {
+        this.form_data.capacity = 1
+      }
   },
 };
 </script>

@@ -3,7 +3,7 @@ export default {
         return new URL(path + name,
             import.meta.url).href;
     },
-    FormatOutputDate(date) {
+    FormatOutputDate(date, type, source) {
         const days = [
             "Minggu",
             "Senin",
@@ -28,13 +28,20 @@ export default {
             "Desember",
         ];
 
+        if (source == 'api') {
+            date = new Date(date);
+        }
+
         const dayName = days[date.getDay()];
-        const day = date.getDate();
+        const day = date.getDate().toString().padStart(2, '0');
         const month = months[date.getMonth()];
         const year = date.getFullYear();
 
-        return `${dayName}, ${day} ${month} ${year}`;
+        return type === 'simple' ?
+            `${day} ${month} ${year}` :
+            `${dayName}, ${day} ${month} ${year}`;
     },
+    
     FormatDate(date) {
         return new Date(date)
             .toLocaleDateString("id-ID", {
