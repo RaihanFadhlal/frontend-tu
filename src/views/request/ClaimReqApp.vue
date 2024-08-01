@@ -63,20 +63,16 @@
                   </div>
                   <v-form class="body">
                     <v-row justify="center">
-                      <v-col cols="12" sm="6" md="5" class="py-0">
-                        <v-text-field
-                          variant="outlined"
-                          v-model="form_search.policy_no"
-                          label="Nomor Polis"
-                          clearable
-                          color="#001F48"
-                          prepend-inner-icon="mdi-book-information-variant"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="5" class="py-0">
+                      <v-col
+                        v-if="prod == 'safari'"
+                        cols="12"
+                        sm="6"
+                        md="5"
+                        class="py-0"
+                      >
                         <v-select
                           variant="outlined"
-                          v-model="form_search.product"
+                          v-model="form_search.product_name"
                           label="Produk"
                           clearable
                           :items="products"
@@ -86,56 +82,80 @@
                       </v-col>
                       <v-col cols="12" sm="6" md="5" class="py-0">
                         <v-select
+                          v-if="prod == 'safari'"
                           variant="outlined"
                           v-model="form_search.destination"
                           label="Destinasi"
                           clearable
-                          :items="country"
+                          :items="countries"
+                          color="#001F48"
+                          prepend-inner-icon="mdi-map-marker"
+                        ></v-select>
+                        <v-select
+                          v-else
+                          variant="outlined"
+                          v-model="form_search.car_type"
+                          label="Mobil"
+                          clearable
+                          :items="cars"
                           color="#001F48"
                           prepend-inner-icon="mdi-map-marker"
                         ></v-select>
                       </v-col>
-                      <v-col cols="12" sm="6" md="5" class="py-0">
+                      <v-col v-if="prod=='abror'" cols="12" sm="6" md="5" class="py-0">
                         <v-menu
-                          v-model="date_search"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
-                          <template v-slot:activator="{ props }">
-                            <v-text-field
-                              v-model="formatted_date_search"
-                              label="Tanggal Berangkat"
-                              prepend-inner-icon="mdi-calendar"
-                              v-bind="props"
-                              variant="outlined"
-                              readonly
-                              :rules="[Required]"
-                              color="#001F48"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            v-model="selected_date_search"
-                            :max="todaydate"
-                            @update:model-value="
-                              (value) =>
-                                UpdateDate(
-                                  'form_search',
-                                  'date_start',
-                                  'date_search',
-                                  value
-                                )
-                            "
-                            class="body"
-                            color="#001F48"
-                          ></v-date-picker>
-                        </v-menu>
+                              v-model="date_menu_picker"
+                              :close-on-content-click="false"
+                              :nudge-right="40"
+                              transition="scale-transition"
+                              offset-y
+                              min-width="auto"
+                            >
+                              <template v-slot:activator="{ props }">
+                                <v-text-field
+                                  variant="outlined"
+                                  v-model="formatted_date_search"
+                                  label="Tanggal Pengajuan"
+                                  prepend-inner-icon="mdi-calendar"
+                                  v-bind="props"
+                                  readonly
+                                  color="#001F48"
+                                  clearable
+                                ></v-text-field>
+                              </template>
+                              <v-date-picker
+                                class="body"
+                                v-model="selected_date_search"
+                                :max="tomorrow"
+                                @update:model-value="UpdateDateSearch"
+                                color="#001F48"
+                              ></v-date-picker>
+                            </v-menu>
                       </v-col>
                     </v-row>
                     <v-row justify="center">
-                      <v-btn color="#F57C00" @click="">
+                      <v-btn
+                        v-if="prod == 'safari'"
+                        color="#F57C00"
+                        @click="
+                          GetPolicies(
+                            form_search.product_name,
+                            form_search.destination
+                          )
+                        "
+                      >
+                        <v-text style="color: aliceblue">Cari</v-text>
+                      </v-btn>
+                      <v-btn
+                        v-else
+                        color="#F57C00"
+                        @click="
+                          GetPoliciesAbror(
+                            form_search.car_type,
+                            form_search.date_start
+                          )
+                        "
+                      >
                         <v-text style="color: aliceblue">Cari</v-text>
                       </v-btn>
                     </v-row>
@@ -154,43 +174,74 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-table class="hidden-xs-only">
+            <v-table>
               <thead>
                 <tr>
-                  <th class="hidden-xs-only">Nomor Polis</th>
+                  <th>Nomor Polis</th>
                   <th>Produk</th>
-                  <th class="hidden-sm-and-down">Jenis Kontribusi</th>
-                  <th class="hidden-sm-and-down">Destinasi</th>
-                  <th>Tanggal</th>
-                  <th>Aksi</th>
+                  <th v-if="prod == 'safari'" class="hidden-sm-and-down">
+                    Destinasi
+                  </th>
+                  <th v-else class="hidden-sm-and-down">
+                    Mobil
+                  </th>
+                  <th class="hidden-sm-and-down">Tanggal</th>
+                  <th class="hidden-sm-and-down">Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in policies" :key="item.policy_no">
-                  <td>{{ item.policy_no }}</td>
-                  <td>{{ item.product }}</td>
-                  <td>{{ item.type }}</td>
-                  <td>{{ item.destination }}</td>
-                  <td>
+                <tr v-for="item in paginated_policies" :key="item.policy_id">
+                  <td>{{ item.policy_id }}</td>
+                  <td>{{ item.product_name }}</td>
+                  <td v-if="prod == 'safari'" class="hidden-sm-and-down">
+                    {{ item.destination }}
+                  </td>
+                  <td v-else class="hidden-sm-and-down">
+                    {{ item.car_type }}
+                  </td>
+                  <td v-if="prod == 'safari'" class="hidden-sm-and-down">
                     {{
                       FormatDate(item.sdate) + " - " + FormatDate(item.edate)
                     }}
                   </td>
+                  <td v-else class="hidden-sm-and-down">
+                    {{
+                      FormatDate(item.date_start) + " - " + FormatDate(item.date_end)
+                    }}
+                  </td>
                   <td>
-                    <v-btn class="ma-1 orange font-weight-bold" @click=""
-                      >Detail</v-btn
+                    <v-btn
+                      class="ma-1 orange font-weight-bold"
+                      @click="GetPdf(item.policy_id)"
+                      >Unduh</v-btn
                     >
                     <v-btn
+                      v-if="prod == 'safari'"
                       class="ma-1 white--text font-weight-bold"
                       color="#001F48"
                       @click="
                         SelectPolicy(
-                          item.policy_no,
-                          item.product,
-                          item.type,
+                          item.policy_id,
+                          item.product_name,
                           item.destination,
                           item.sdate,
                           item.edate
+                        )
+                      "
+                      >Pilih</v-btn
+                    >
+                    <v-btn
+                      v-else
+                      class="ma-1 white--text font-weight-bold"
+                      color="#001F48"
+                      @click="
+                        SelectPolicy(
+                          item.policy_id,
+                          item.product_name,
+                          '',
+                          item.date_start,
+                          item.date_end,
+                          item.car_type,
                         )
                       "
                       >Pilih</v-btn
@@ -199,15 +250,22 @@
                 </tr>
               </tbody>
             </v-table>
-            <v-chip class="ma-3" color="#001F48" text-color="white">
+            <v-pagination
+              v-model="current_page"
+              :length="pages"
+              @update:modelValue="UpdatePage"
+              color="blue lighten-5"
+              class="mx-auto mt-8"
+            ></v-pagination>
+            <v-chip class="ml-3 mb-3" color="#001F48">
               <v-icon left> mdi-book </v-icon>
-              {{ "Polis : " + policy }}
+              {{ "Polis : " + selected_policy }}
             </v-chip>
             <div class="ml-3 mt-3">
               <router-link to="/">
                 <v-btn class="mr-2"> Batal </v-btn>
               </router-link>
-              <v-btn color="orange" @click="e1 = 1"> Selanjutnya </v-btn>
+              <v-btn color="orange" @click="CheckPolicy"> Selanjutnya </v-btn>
             </div>
           </v-card>
         </v-stepper-window-item>
@@ -223,7 +281,7 @@
               </v-row>
               <v-form ref="form" class="body">
                 <v-row>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="6">
                     <v-menu
                       v-model="date_picker1"
                       :close-on-content-click="false"
@@ -246,7 +304,7 @@
                       </template>
                       <v-date-picker
                         v-model="selected_date"
-                        :min="todaydate"
+                        :max="tomorrow"
                         @update:model-value="
                           (value) =>
                             UpdateDate(
@@ -261,7 +319,7 @@
                       ></v-date-picker>
                     </v-menu>
                   </v-col>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="6">
                     <v-text-field
                       variant="outlined"
                       v-model="date_rep_value"
@@ -271,7 +329,7 @@
                       color="#001F48"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="6">
                     <v-text-field
                       variant="outlined"
                       v-model="form_data.location"
@@ -282,6 +340,17 @@
                       color="#001F48"
                     ></v-text-field>
                   </v-col>
+                  <v-col cols="12" md="6">
+                    <v-file-input
+                      variant="outlined"
+                      label="Bukti Foto"
+                      chips
+                      prepend-inner-icon="mdi-camera"
+                      accept="image/png, image/jpeg, image/jpg"
+                      @change="UploadImg"
+                      :rules="[Required]"
+                    ></v-file-input
+                  ></v-col>
                   <v-col>
                     <v-textarea
                       variant="outlined"
@@ -320,7 +389,7 @@
               </v-row>
               <v-form class="body">
                 <v-row>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="6">
                     <v-text-field
                       variant="outlined"
                       v-model="date_acc_value"
@@ -330,7 +399,7 @@
                       color="#001F48"
                     ></v-text-field
                   ></v-col>
-                  <v-col cols="12" sm="4">
+                  <v-col cols="12" sm="6">
                     <v-text-field
                       variant="outlined"
                       v-model="date_rep_value"
@@ -340,7 +409,7 @@
                       color="#001F48"
                     ></v-text-field
                   ></v-col>
-                  <v-col cols="12" sm="4">
+                  <v-col cols="12" sm="6">
                     <v-text-field
                       variant="outlined"
                       v-model="form_data.location"
@@ -350,6 +419,16 @@
                       color="#001F48"
                     ></v-text-field
                   ></v-col>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      variant="outlined"
+                      v-model="file_name"
+                      label="Bukti Foto"
+                      readonly
+                      prepend-inner-icon="mdi-camera"
+                      color="#001F48"
+                    ></v-text-field>
+                  </v-col>
                   <v-col>
                     <v-textarea
                       variant="outlined"
@@ -371,7 +450,7 @@
                   <v-col cols="12" sm="4">
                     <v-text-field
                       variant="outlined"
-                      v-model="policy"
+                      v-model="selected_policy"
                       label="Nomor Polis"
                       prepend-inner-icon="mdi-book-information-variant"
                       readonly
@@ -381,7 +460,7 @@
                   <v-col cols="12" sm="4">
                     <v-text-field
                       variant="outlined"
-                      v-model="product"
+                      v-model="product_name"
                       label="Produk"
                       prepend-inner-icon="mdi-map"
                       readonly
@@ -390,19 +469,19 @@
                   </v-col>
                   <v-col cols="12" sm="4">
                     <v-text-field
-                      variant="outlined"
-                      v-model="contribution"
-                      label="Kontribusi"
-                      prepend-inner-icon="mdi-map-marker"
-                      color="#001F48"
-                      readonly
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="4">
-                    <v-text-field
+                      v-if="prod == 'safari'"
                       variant="outlined"
                       v-model="destination"
                       label="Destinasi"
+                      prepend-inner-icon="mdi-map-marker"
+                      readonly
+                      color="#001F48"
+                    ></v-text-field>
+                    <v-text-field
+                      v-if="prod == 'abror'"
+                      variant="outlined"
+                      v-model="car_type"
+                      label="Mobil"
                       prepend-inner-icon="mdi-map-marker"
                       readonly
                       color="#001F48"
@@ -422,7 +501,7 @@
                     <v-text-field
                       variant="outlined"
                       v-model="date_end_value"
-                      label="Tanggal Berangkat"
+                      label="Tanggal Pulang"
                       prepend-inner-icon="mdi-calendar"
                       color="#001F48"
                       readonly
@@ -431,9 +510,11 @@
                 </v-row>
               </v-form>
               <v-row class="ma-3">
-                  <v-btn class="mr-2" style="font-weight: 600" @click="e1 = 1"> Batal </v-btn>
-                  <v-btn color="orange" @click="CheckForm"> Selanjutnya </v-btn>
-                </v-row>
+                <v-btn class="mr-2" style="font-weight: 600" @click="e1 = 1">
+                  Batal
+                </v-btn>
+                <v-btn color="orange" @click="ReqClaim"> Selanjutnya </v-btn>
+              </v-row>
             </v-col>
           </v-card>
         </v-stepper-window-item>
@@ -455,7 +536,7 @@
     <v-dialog persistent v-model="dialog_err" max-width="400px">
       <v-card class="body">
         <v-card-title class="font-weight-bold mt-2"
-          ><v-icon class="mr-2 mb-1" left color="red"
+          ><v-icon class="mr-2 mb-1" left color="black"
             >mdi-alert-circle-outline</v-icon
           >{{ dialog_title }}</v-card-title
         >
@@ -473,6 +554,7 @@
 <script>
 import func from "../../function";
 import ClaimStep from "./ClaimStep.vue";
+import axios from "../../axios";
 
 export default {
   name: "RequestApp",
@@ -481,13 +563,16 @@ export default {
   },
   data: () => {
     return {
-      e1: 0,
-      policy: "",
-      product: "",
-      contribution: "",
+      e1: 0 ,
+      policy_id: "",
+      product_name: "",
       destination: "",
-      sdate: "",
-      edate: "",
+      date_start: "",
+      date_end: "",
+
+      policy: [],
+
+      selected_policy: "",
 
       date_picker1: false,
       date_search: false,
@@ -497,27 +582,26 @@ export default {
       product: "Takaful Safari Umroh dan Haji Khusus",
       product_id: "",
       products: [
-        "Takaful Safari Umroh Plus Covid New Normal",
         "Takaful Safari Umroh Afdhol",
         "Takaful Safari Umroh dan Haji Khusus",
         "Takaful Safari Multitrip",
-        "Takaful Safari Umroh Non Covid (50 Ribu)",
-        "Takaful Safari Umroh Non Covid (Plus Zam Zam)",
       ],
 
       form_search: {
-        policy_no: "",
-        product: "",
-        destination: "",
-        date_start: "",
+        product_name: null,
+        destination: null,
+        car_type: null,
+        date_start: null,
       },
-
       //data form
       form_data: {
+        policy_id: "",
+        product_name: "",
         date_acc: "",
         location: "",
         detail: "",
-        date_rep: new Date().toISOString().split("T")[0],
+        date_report: new Date().toISOString().split("T")[0],
+        evidence: "",
       },
 
       //rules
@@ -526,6 +610,7 @@ export default {
       Required: (v) => !!v || "Harus Diisi",
       // tomorrowdate: func.GetTomorrowDate(),
       todaydate: new Date().toISOString().split("T")[0],
+      tomorrow: "",
 
       //snackbar
       snackbar: false,
@@ -537,22 +622,54 @@ export default {
       dialog_err: false,
       dialog_title: "",
       dialog_text: "",
+
+      current_page: 1,
+      per_page: 3,
+      file_name: "",
+      prod: "",
+      countries: [],
+
+      date_menu_picker: false,
+      image: null,
+      cars: [],
+
     };
   },
 
-  created() {
-    // this.GetPolicy("", "", "")
+  async created() {
+    const id = this.$route.query.id;
+    if (id === "safari") {
+      await this.GetPolicies("", "");
+      await this.GetCountries();
+      this.prod = "safari";
+    } else if (id === "abror") {
+     await this.GetPoliciesAbror("", "");
+     await this.GetCars();
+      this.prod = "abror";
+    } else {
+      this.$router.push("/");
+      return;
+    }
+    this.tomorrow = func.Tomorrow()
   },
 
   computed: {
+    paginated_policies() {
+      const start = (this.current_page - 1) * this.per_page;
+      const end = start + this.per_page;
+      return this.policy.slice(start, end);
+    },
+    pages() {
+      return Math.ceil(this.policy.length / this.per_page);
+    },
     formatted_date_search() {
       return this.selected_date_search
-        ? func.FormatOutputDate(this.selected_date_search)
+        ? func.FormatOutputDate(this.selected_date_search,'simple')
         : "";
     },
     date_acc_value() {
       return this.selected_date
-        ? func.FormatOutputDate(this.selected_date)
+        ? func.FormatOutputDate(this.selected_date, "simple")
         : "";
     },
     date_rep_value() {
@@ -561,18 +678,160 @@ export default {
         : "";
     },
     date_start_value() {
-      return this.sdate
-        ? func.FormatOutputDate(this.sdate, "simple", "api")
+      return this.date_start
+        ? func.FormatOutputDate(this.date_start, "simple", "api")
         : "";
     },
     date_end_value() {
-      return this.edate
-        ? func.FormatOutputDate(this.edate, "simple", "api")
+      return this.date_end
+        ? func.FormatOutputDate(this.date_end, "simple", "api")
         : "";
     },
   },
 
   methods: {
+    async GetPolicies(name, dest) {
+      try {
+        const response = await axios.post("/get-policies", {
+          product_name: name,
+          destination: dest,
+        });
+        if (response.data.status) {
+          if (response.data.data == null) {
+            this.DialogActive("Belum ada polis yang terdaftar!");
+            this.dialog_policy = false;
+          } else {
+            this.policy = response.data.data;
+            this.dialog_policy = false;
+          }
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
+    },
+    async GetPoliciesAbror(car, sdate) {
+      try {
+        const response = await axios.post("/get-policies-abror", {
+          car_type: car,
+          date_start: sdate,
+        });
+        if (response.data.status) {
+          if (response.data.data == null) {
+            this.DialogActive("Belum ada polis yang terdaftar!");
+            this.dialog_policy = false;
+          } else {
+            this.policy = response.data.data;
+            this.dialog_policy = false;
+          }
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
+    },
+    async GetCountries() {
+      try {
+        const response = await axios.get("/countries");
+        if (response.data.status) {
+          this.countries = response.data.data.countries
+            .split(",")
+            .map((country) => country.trim());
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
+    },
+    GetPdf(policyId) {
+      axios
+        .post(
+          "/download-pdf",
+          { policy_id: policyId },
+          { responseType: "blob" }
+        )
+        .then((response) => {
+          if (response.status === 200) {
+            const url = window.URL.createObjectURL(
+              new Blob([response.data], { type: "application/pdf" })
+            );
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", policyId + ".pdf");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else {
+            console.error("Error retrieving PDF:", response.data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Error retrieving PDF:", error);
+        });
+    },
+    async ReqClaim() {
+      this.form_data.evidence = this.image.replace(/^.+?base64,/, "");
+      var link
+      if(this.prod == 'safari'){
+        link = '/req-claim'
+      } else {
+        link = '/req-claim-abror'
+      }
+      console.log(link)
+      try {
+        const response = await axios.post(link, {
+          ...this.form_data,
+        });
+        if (response.data.status) {
+          window.scrollTo({
+            top: 0,
+          });
+          this.DialogActive("Pengajuan Berhasil : ");
+          setTimeout(() => {
+            this.$router.push("/claim-history");
+          }, 2000);
+        } else {
+          window.scrollTo({
+            top: 0,
+          });
+          this.DialogActive("Pengajuan Gagal : ", response.data.message);
+        }
+      } catch (error) {
+        window.scrollTo({
+          top: 0,
+        });
+        this.DialogActive("Pengajuan Gagal : ", response.data.message);
+      }
+    },
+    async GetCars(){
+      try {
+        const response = await axios.get("/get-cars");
+        if (response.data.status) {
+          this.cars = response.data.data
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
+    },
+    UploadImg(event) {
+      var input = event.target;
+      if (input.files && input.files[0]) {
+        this.file_name = input.files[0].name;
+        var reader = new FileReader();
+        reader.onload = (e) => {
+          this.image = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    },
+    UpdatePage(page) {
+      this.current_page = page;
+    },
     UploadIcon(path, name) {
       return new URL(path + name, import.meta.url).href;
     },
@@ -586,21 +845,24 @@ export default {
       }
     },
     CheckPolicy() {
-      if (this.policy !== "") {
-        this.e1 = 2;
+      if (this.selected_policy !== "") {
+       this.e1 = 1;
       } else {
         this.dialog_title = "Polis Belum Dipilih";
         this.dialog_text = "Pilih polis terlebih dahulu pada kolom aksi";
         this.dialog_err = true;
       }
     },
-    SelectPolicy(policy, product, contribution, destination, sdate, edate) {
-      this.policy = policy;
-      this.product = product;
-      this.contribution = contribution;
+    SelectPolicy(policy, product, destination, sdate, edate, car) {
+      this.selected_policy = policy;
+      this.product_name = product;
       this.destination = destination;
-      this.sdate = sdate;
-      this.edate = edate;
+      this.date_start = sdate;
+      this.date_end = edate;
+      this.car_type = car;
+
+      this.form_data.product_name = product;
+      this.form_data.policy_id = policy;
     },
     FormatDate(date) {
       return func.FormatOutputDate(date, "simple", "api");
@@ -609,70 +871,10 @@ export default {
       this[formKey][dateKey] = func.FormatDate(value);
       this[menuKey] = false;
     },
-
-    // GetPolicy(no, name, dest, sdate) {
-    //   let formdata = {
-    //     id: func.UsersID(),
-    //     no_policy: no,
-    //     product: name,
-    //     destination: dest,
-    //     date_start: sdate,
-    //   };
-    //   let param = func.ParamPOST(formdata);
-    //   axios
-    //     .post(func.UrlPOST("apiSearchPolicy"), param, {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     })
-    //     .then((response) => {
-    //       let feedback = response.data;
-    //       if (feedback.length > 0) {
-    //         if (feedback[0].status === true) {
-    //           this.policies = feedback.map((item) => ({
-    //             ...item.data,
-    //           }));
-    //         } else {
-    //           this.DialogActive("Failed (1) :  ", feedback[0].message);
-    //         }
-    //       } else {
-    //         this.DialogActive("Belum ada polis yang terdaftar!");
-    //       }
-    //     })
-    //     .catch((e) => {
-    //       this.DialogActive("Failed (3) :", e);
-    //     });
-    //   this.dialog_policy = false;
-    // },
-    // GetPdf(policy) {
-    //   let formdata = {
-    //     id: func.UsersID(),
-    //     refid: policy,
-    //   };
-    //   let param = func.ParamPOST(formdata);
-    //   axios
-    //     .post(func.UrlPOST("apiSafariGetPdf"), param, {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     })
-    //     .then((response) => {
-    //       let feedback = response.data;
-    //       if (feedback.length > 0) {
-    //         if (feedback[0].status === true) {
-    //           window.open(feedback[0].data.policy_url, "_blank");
-    //         } else {
-    //           this.DialogActive("Failed (1) : ", feedback[0].message);
-    //         }
-    //       } else {
-    //         this.DialogActive("Failed (2)");
-    //       }
-    //     })
-    //     .catch((e) => {
-    //       this.DialogActive("Failed (3) : ", e);
-    //     });
-    // },
-
+    UpdateDateSearch(value) {
+        this.form_search.date_start = func.FormatDate(value);
+        this.date_menu_picker = false;
+      },
     DialogActive(title, msg) {
       this.dialog_title = title;
       this.dialog_text = msg;
@@ -700,5 +902,10 @@ export default {
 }
 .full-height {
   height: 100vh;
+}
+
+.v-input--center-affix .v-input__prepend,
+.v-input--center-affix .v-input__append {
+  display: none !important;
 }
 </style>

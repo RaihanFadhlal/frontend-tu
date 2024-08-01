@@ -241,13 +241,13 @@ export default {
     gsap.to(cloud, {
       x: screenwidth,
       ease: Power0.easeNone,
-      duration: 9,
+      duration: 10,
       onComplete: () => {
-        gsap.set(cloud, { x: -cloud.clientWidth });
+        gsap.set(cloud, { x: "-700px" });
         gsap.to(cloud, {
           x: screenwidth,
           ease: Power0.easeNone,
-          duration: 10,
+          duration: 12,
           repeat: -1,
         });
       },

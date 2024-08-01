@@ -41,7 +41,7 @@ export default {
             `${day} ${month} ${year}` :
             `${dayName}, ${day} ${month} ${year}`;
     },
-    
+
     FormatDate(date) {
         return new Date(date)
             .toLocaleDateString("id-ID", {
@@ -54,4 +54,22 @@ export default {
             .reverse()
             .join("-");
     },
+    GenderFormat(gender) {
+        if (gender === "Laki-laki") {
+            return "M";
+        } else if (gender === "Perempuan") {
+            return "F";
+        } else if (gender === "M") {
+            return "Laki-laki";
+        } else if (gender === "F") {
+            return "Perempuan";
+        } else {
+            return gender;
+        }
+    },
+    Tomorrow() {
+        const today = new Date();
+        today.setDate(today.getDate() + 1);
+        return today.toISOString().split("T")[0];
+      },
 }

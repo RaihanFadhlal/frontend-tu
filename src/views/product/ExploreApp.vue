@@ -38,7 +38,8 @@
           elevation="3"
         >
           <v-icon left> mdi-airplane-marker </v-icon>
-          {{ "Destinasi : " + destination }}
+          <span v-if="destination !== ''">{{ "Destinasi : " + destination }}</span>
+          <span v-else>Destinasi : Semua</span>
         </v-chip>
       </div>
 
@@ -115,7 +116,6 @@
 </template>
 
 <script>
-import func from "../../function";
 import NavBar from "../../components/Navbar.vue";
 import FooterApp from "../../components/FooterApp.vue";
 import SearchProduct from "./SearchProduct.vue";
@@ -165,8 +165,6 @@ export default {
       this.dialog = true;
     },
     ChooseProduct(product) {
-      localStorage.setItem("product_id", product.code);
-      localStorage.setItem("product_name", product.name);
       this.$router.push("/detail?id=" + product.code);
     },
     async GetProduct(country) {

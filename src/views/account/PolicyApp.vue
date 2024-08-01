@@ -18,7 +18,7 @@
                   <v-icon class="ma-4" color="grey-darken-1"
                     >mdi-book-clock</v-icon
                   >
-                  <span style="color: #212121">Riwayat Polis</span>
+                  <span style="color: #212121">Takaful Safari</span>
                 </div>
                 <v-dialog v-model="dialog_policy" persistent max-width="700">
                   <template v-slot:activator="{ props }">
@@ -45,16 +45,6 @@
                       <v-form class="body">
                         <v-row justify="center">
                           <v-col cols="12" sm="6" md="5" class="py-0">
-                            <v-text-field
-                              variant="outlined"
-                              v-model="form_data.policy_no"
-                              label="Nomor Polis"
-                              clearable
-                              color="#001F48"
-                              prepend-inner-icon="mdi-book-information-variant"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col cols="12" sm="6" md="5" class="py-0">
                             <v-select
                               variant="outlined"
                               v-model="form_data.product"
@@ -71,9 +61,164 @@
                               v-model="form_data.destination"
                               label="Destinasi"
                               clearable
-                              :items="country"
+                              :items="countries"
                               color="#001F48"
                               prepend-inner-icon="mdi-map-marker"
+                            ></v-select>
+                          </v-col>
+                        </v-row>
+                        <v-row justify="center">
+                          <v-btn
+                            color="#F57C00"
+                            @click="
+                              GetPolicies(
+                                form_data.product,
+                                form_data.destination
+                              )
+                            "
+                          >
+                            <span class="body">Cari</span>
+                          </v-btn>
+                        </v-row>
+                      </v-form>
+                    </v-card-text>
+                    <v-card-actions class="pt-0">
+                      <v-spacer></v-spacer>
+                      <v-btn color="#001F48" @click="dialog_policy = false">
+                        <span class="body">Tutup</span>
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+                <v-card flat class="mt-3">
+                  <div v-if="policy.length === 0" class="text-center"> Belum ada Polis
+                  </div>
+                  <v-row>
+                    <v-col
+                      v-for="(policy, index) in paginated_transactions"
+                      :key="index"
+                      cols="12"
+                      class="pb-0"
+                    >
+                      <v-card elevation="1">
+                        <v-card-text>
+                          <v-row>
+                            <v-col
+                              class="hidden-xs-only"
+                              cols="4"
+                              sm="3"
+                              md="2"
+                            >
+                              <v-img
+                                class="my-auto rounded"
+                                :src="policy.image"
+                              >
+                              </v-img>
+                            </v-col>
+                            <v-col cols="12" sm="9" md="10" class="pb-0">
+                              <v-row class="d-flex">
+                                <v-col cols="12" sm="7" class="pb-0">
+                                  <div
+                                    class="body mb-2"
+                                    style="color: #001f48; font-size: large"
+                                  >
+                                    {{ policy.product_name }}
+                                  </div>
+                                  <div
+                                    class="body mb-2"
+                                    style="color: #23cac0; font-size: medium"
+                                  >
+                                    {{ "No Polis : " + policy.policy_id }}
+                                  </div>
+                                  <div class="body mb-2" style="color: black">
+                                    {{ policy.destination }}
+                                  </div>
+                                </v-col>
+                                <v-col
+                                  cols="12"
+                                  sm="5"
+                                  class="text-sm-end pb-0 pt-0 pt-sm-3"
+                                >
+                                  <div
+                                    class="body mb-2"
+                                    style="color: black; font-size: medium"
+                                  >
+                                    {{
+                                      FormatDate(policy.sdate) +
+                                      " - " +
+                                      FormatDate(policy.edate)
+                                    }}
+                                  </div>
+                                </v-col>
+                              </v-row>
+                            </v-col>
+                            <v-col class="text-sm-end">
+                              <v-btn
+                                rounded
+                                depressed
+                                color="#F57C00"
+                                style="color: white"
+                                @click="GetPdf(policy.policy_id)"
+                                >Unduh Polis
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                  <v-pagination
+                    v-model="current_page"
+                    :length="pages"
+                    @update:modelValue="UpdatePage"
+                    color="blue lighten-5"
+                    class="mx-auto mt-8 mb-5"
+                  ></v-pagination>
+                </v-card>
+              </v-col>
+              <v-col cols="12">
+                <div
+                  class="mb-3 rounded-ts-xl rounded-be-xl"
+                  style="background-color: #e3f2fd"
+                >
+                  <v-icon class="ma-4" color="grey-darken-1"
+                    >mdi-shield-car</v-icon
+                  >
+                  <span style="color: #212121">Takaful Abror</span>
+                </div>
+                <v-dialog v-model="dialog_policy_abror" persistent max-width="700">
+                  <template v-slot:activator="{ props }">
+                    <v-btn v-bind="props" prepend-icon="mdi-book-search">
+                      <span class="body">Cari Polis</span>
+                    </v-btn>
+                  </template>
+                  <v-card class="body pt-5">
+                    <v-card-text>
+                      <div
+                        style="
+                          font-weight: bold;
+                          font-size: large;
+                          text-align: center;
+                          margin-bottom: 30px;
+                          color: #001f48;
+                        "
+                      >
+                        <v-icon left class="mr-2 mb-1" color="#001F48"
+                          >mdi-book-search</v-icon
+                        >
+                        Cari Polis
+                      </div>
+                      <v-form class="body">
+                        <v-row justify="center">
+                          <v-col cols="12" sm="6" md="5" class="py-0">
+                            <v-select
+                              variant="outlined"
+                              v-model="form_data.car_type"
+                              label="Produk"
+                              clearable
+                              :items="cars"
+                              color="#001F48"
+                              prepend-inner-icon="mdi-car"
                             ></v-select>
                           </v-col>
                           <v-col cols="12" sm="6" md="5" class="py-0">
@@ -89,7 +234,7 @@
                                 <v-text-field
                                   variant="outlined"
                                   v-model="formatted_date"
-                                  label="Berangkat"
+                                  label="Tanggal Pengajuan"
                                   prepend-inner-icon="mdi-calendar"
                                   v-bind="props"
                                   readonly
@@ -110,10 +255,8 @@
                           <v-btn
                             color="#F57C00"
                             @click="
-                              GetPolicy(
-                                form_data.policy_no,
-                                form_data.product,
-                                form_data.destination,
+                              GetPoliciesAbror(
+                                form_data.car_type,
                                 form_data.date_start
                               )
                             "
@@ -125,22 +268,18 @@
                     </v-card-text>
                     <v-card-actions class="pt-0">
                       <v-spacer></v-spacer>
-                      <v-btn color="#001F48" @click="dialog_policy = false">
+                      <v-btn color="#001F48" @click="dialog_policy_abror = false">
                         <span class="body">Tutup</span>
                       </v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
                 <v-card flat class="mt-3">
-                  <div v-if="policies.length === 0" class="text-center">
-                    <v-progress-circular
-                      indeterminate
-                      color="#3EC2D1"
-                    ></v-progress-circular>
+                  <div v-if="policy_abror.length === 0" class="text-center">Belum ada Polis
                   </div>
                   <v-row>
                     <v-col
-                      v-for="(policy, index) in paginated_transactions"
+                      v-for="(policy, index) in paginated_transactions2"
                       :key="index"
                       cols="12"
                       class="pb-0"
@@ -154,7 +293,10 @@
                               sm="3"
                               md="2"
                             >
-                              <v-img class="my-auto rounded" :src="policy.image">
+                              <v-img
+                                class="my-auto rounded"
+                                :src="policy.image"
+                              >
                               </v-img>
                             </v-col>
                             <v-col cols="12" sm="9" md="10" class="pb-0">
@@ -164,16 +306,16 @@
                                     class="body mb-2"
                                     style="color: #001f48; font-size: large"
                                   >
-                                    {{ policy.product }}
+                                    {{ policy.product_name }}
                                   </div>
                                   <div
                                     class="body mb-2"
                                     style="color: #23cac0; font-size: medium"
                                   >
-                                    {{ policy.no_policy }}
+                                    {{ "No Polis : " + policy.policy_id }}
                                   </div>
                                   <div class="body mb-2" style="color: black">
-                                    {{ policy.destination }}
+                                    {{ policy.car_type }}
                                   </div>
                                 </v-col>
                                 <v-col
@@ -185,7 +327,11 @@
                                     class="body mb-2"
                                     style="color: black; font-size: medium"
                                   >
-                                    {{ FormatDate(policy.sdate) + " - " + FormatDate(policy.edate) }}
+                                    {{
+                                      FormatDate(policy.date_start) +
+                                      " - " +
+                                      FormatDate(policy.date_end)
+                                    }}
                                   </div>
                                 </v-col>
                               </v-row>
@@ -196,22 +342,22 @@
                                 depressed
                                 color="#F57C00"
                                 style="color: white"
-                                @click="GetPdf(policy.no_policy)"
-                                >Lihat Polis
+                                @click="GetPdf(policy.policy_id)"
+                                >Unduh Polis
                               </v-btn>
                             </v-col>
                           </v-row>
                         </v-card-text>
                       </v-card>
                     </v-col>
-                    <v-pagination
-                      v-model="current_page"
-                      :length="pages"
-                      @update:modelValue="UpdatePage"
-                      color="blue lighten-5"
-                      class="mx-auto mt-2"
-                    ></v-pagination>
                   </v-row>
+                  <v-pagination
+                    v-model="current_page"
+                    :length="pages_abror"
+                    @update:modelValue="UpdatePage"
+                    color="blue lighten-5"
+                    class="mx-auto mt-8 mb-5"
+                  ></v-pagination>
                 </v-card>
               </v-col>
             </v-col>
@@ -245,8 +391,7 @@ import FooterApp from "../../components/FooterApp.vue";
 import AccountDrawer from "./AccountDrawer.vue";
 import AccountMenu from "./AccountMenu.vue";
 import func from "../../function";
-//   import axios from "axios"
-//   import moment from "moment"
+import axios from "../../axios";
 
 export default {
   name: "PolicyApp",
@@ -257,84 +402,140 @@ export default {
     AccountMenu,
   },
   data: () => ({
+    date_menu: false,
+    selected_date: null,
     drawer: true,
     rail: false,
     dialog_policy: false,
-    policies: [
-      {
-        no_policy: "PTSUHK001",
-        product: "Takaful Safari Haji dan Umroh",
-        destination: "Saudi Arabia",
-        sdate: "2024-03-10",
-        edate: "2024-03-15",
-        image: "https://www.madaninews.id/wp-content/uploads/2019/01/photo_post_181_0.jpg"
-      },
-    ],
+    policy: [],
+    policy_abror: [],
     dialog_err: false,
 
     products: [
-      "Takaful Safari Umroh Plus Covid New Normal",
       "Takaful Safari Umroh Afdhol",
       "Takaful Safari Umroh dan Haji Khusus",
       "Takaful Safari Multitrip",
-      "Takaful Safari Umroh Non Covid (50 Ribu)",
-      "Takaful Safari Umroh Non Covid (Plus Zam Zam)",
     ],
-    country: ["Saudi Arabia", "Turki"],
+    cars: [
+      "Avanza",
+      "Vios",
+      "Kijang Innova",
+      "Alphard",
+      "Brio",
+      "Mobilio",
+      "CRV",
+      "HRV",
+      "Xenia",
+      "Terios",
+      "GranMax Minibus",
+      "CX-3",
+      "Mazda MX-5RF",
+      "Mazda2 Sedan",
+      "Pajero Sport",
+      "Xpander",
+      "Triton",
+      "X-Trail",
+      "Livina",
+      "Leaf",
+    ],
+    countries: [],
+    dialog_policy_abror:false,
 
     form_data: {
-      policy_no: "",
-      product: "",
-      destination: "",
-      date_start: "",
+      product: null,
+      destination: null,
     },
 
-    date_menu: false,
-    selected_date: null,
-
     current_page: 1,
-    per_page: 5,
+    current_page_abror: 1,
+    per_page: 3,
   }),
 
   methods: {
-    Reload() {
-      location.reload();
-    },
-    GetPolicy(no, name, dest, sdate) {
-      let formdata = {
-        id: func.UsersID(),
-        no_policy: no,
-        product: name,
-        destination: dest,
-        date_start: sdate,
-      };
-      let param = func.ParamPOST(formdata);
-      axios
-        .post(func.UrlPOST("apiSearchPolicy"), param, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          let feedback = response.data;
-          if (feedback.length > 0) {
-            if (feedback[0].status === true) {
-              this.policies = feedback.map((item) => ({
-                ...item.data,
-                sdate: func.FormatCustomBirthDate(moment(item.data.sdate)),
-                edate: func.FormatCustomBirthDate(moment(item.data.edate)),
-              }));
-            } else {
-              this.DialogActive("Failed (1) :  ", feedback[0].message);
-            }
-          } else {
+    async GetPolicies(name, dest) {
+      try {
+        const response = await axios.post("/get-policies", {
+          product_name: name,
+          destination: dest,
+        });
+        if (response.data.status) {
+          if (response.data.data == null) {
             this.DialogActive("Belum ada polis yang terdaftar!");
+            this.dialog_policy = false;
+          } else {
+            this.policy = response.data.data;
+            this.dialog_policy = false;
+          }
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
+    },
+    async GetPoliciesAbror(car, sdate) {
+      try {
+        const response = await axios.post("/get-policies-abror", {
+          car_type: car,
+          date_start: sdate,
+        });
+        if (response.data.status) {
+          if (response.data.data == null) {
+            this.DialogActive("Belum ada polis yang terdaftar!");
+            this.dialog_policy_abror = false;
+          } else {
+            this.policy_abror = response.data.data;
+            this.dialog_policy_abror = false;
+          }
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
+    },
+    GetPdf(policyId) {
+      axios
+        .post(
+          "/download-pdf",
+          { policy_id: policyId },
+          { responseType: "blob" }
+        )
+        .then((response) => {
+          if (response.status === 200) {
+            const url = window.URL.createObjectURL(
+              new Blob([response.data], { type: "application/pdf" })
+            );
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", policyId + ".pdf");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else {
+            console.error("Error retrieving PDF:", response.data.message);
           }
         })
-        .catch((e) => {
-          this.DialogActive("Failed (3) :", e);
+        .catch((error) => {
+          console.error("Error retrieving PDF:", error);
         });
-      this.dialog_policy = false;
+    },
+    async GetCountries() {
+      try {
+        const response = await axios.get("/countries");
+        if (response.data.status) {
+          this.countries = response.data.data.countries
+            .split(",")
+            .map((country) => country.trim());
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
+    },
+    Reload() {
+      location.reload();
     },
     UpdateDate(value) {
       this.form_data.date_start = func.FormatDate(value);
@@ -345,71 +546,53 @@ export default {
       this.dialog_text = msg;
       this.dialog_err = true;
     },
-    GetPdf(policy) {
-      let formdata = {
-        id: func.UsersID(),
-        refid: policy,
-      };
-      let param = func.ParamPOST(formdata);
-      axios
-        .post(func.UrlPOST("apiSafariGetPdf"), param, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          let feedback = response.data;
-          if (feedback.length > 0) {
-            if (feedback[0].status === true) {
-              window.open(feedback[0].data.policy_url, "_blank");
-            } else {
-              this.DialogActive("Failed (1) : ", feedback[0].message);
-            }
-          } else {
-            this.DialogActive("Failed (2)");
-          }
-        })
-        .catch((e) => {
-          this.DialogActive("Failed (3) : ", e);
-        });
-    },
     OpenPolicyUrl(url) {
       window.open(url, "_blank");
     },
-
     UpdatePage(page) {
       this.current_page = page;
     },
     UpdateRail(value) {
       this.rail = value;
     },
-    FormatDate(date){
-      return func.FormatOutputDate(date, 'simple', 'api')
-    }
+    FormatDate(date) {
+      return func.FormatOutputDate(date, "simple", "api");
+    },
   },
-  created() {
-    // this.GetPolicy("", "", "")
+  async created() {
+    await this.GetPolicies("", "");
+    await this.GetPoliciesAbror("", "");
+    await this.GetCountries();
   },
   computed: {
-    formatted_date() {
-      return this.selected_date
-        ? func.FormatOutputDate(this.selected_date, 'simple')
-        : "";
-    },
     paginated_transactions() {
       const start = (this.current_page - 1) * this.per_page;
       const end = start + this.per_page;
 
-      return this.policies.slice(start, end);
+      return this.policy.slice(start, end);
+    },
+    paginated_transactions2() {
+      const start = (this.current_page_abror - 1) * this.per_page;
+      const end = start + this.per_page;
+
+      return this.policy_abror.slice(start, end);
     },
     pages() {
-      return Math.ceil(this.policies.length / this.per_page);
+      return Math.ceil(this.policy.length / this.per_page);
+    },
+    pages_abror() {
+      return Math.ceil(this.policy_abror.length / this.per_page);
+    },
+    formatted_date() {
+      return this.selected_date
+        ? func.FormatOutputDate(this.selected_date, "simple")
+        : "";
     },
   },
 };
 </script>
 <style>
 .theme--light.v-pagination .v-pagination__item--active {
-  color: black
+  color: black;
 }
 </style>

@@ -128,14 +128,14 @@ export default {
           child: [
             {
               icon: "shield-plus",
-              name: "Ajukan Klaim",
-              path: "/claim-req",
+              name: "Ajukan Klaim Safari",
+              path: "/claim-req?id=safari",
               term: "login",
             },
             {
-              icon: "shield-sync",
-              name: "Proses Klaim",
-              path: "",
+              icon: "shield-plus",
+              name: "Ajukan Klaim Abror",
+              path: "/claim-req?id=abror",
               term: "login",
             },
           ],

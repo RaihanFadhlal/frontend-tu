@@ -2,12 +2,20 @@
 import {
   createStore
 } from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
 import axios from './axios';
 
 const store = createStore({
   state: {
     accessToken: localStorage.getItem('accessToken') || '',
     isAuthenticated: !!localStorage.getItem('accessToken'),
+    productCode: "",
+    productName: "",
+    abrorCont: "",
+    carBrand: "",
+    carType: "",
+    cars: [],
+    brands: [],
   },
   mutations: {
     setAccessToken(state, token) {
@@ -22,6 +30,17 @@ const store = createStore({
       state.isAuthenticated = false;
       localStorage.removeItem('accessToken');
     },
+    setProduct(state,{code, name}) {
+      state.productCode = code
+      state.productName = name
+    },
+    setAbror(state,{cont, brand, type, cars, brands}) {
+      state.abrorCont = cont
+      state.carBrand = brand
+      state.carType = type
+      state.cars = cars
+      state.brands = brands
+    }
   },
   actions: {
     async login({
@@ -66,6 +85,9 @@ const store = createStore({
     }) {
       try {
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('contribution');
+        localStorage.removeItem('countries');
+        localStorage.removeItem('form_safari');
 
         await axios.post('/logout', {}, {
           withCredentials: true
@@ -86,7 +108,32 @@ const store = createStore({
     accessToken(state) {
       return state.accessToken;
     },
+    productCode(state){
+      return state.productCode
+    },
+    productName(state){
+      return state.productName
+    },
+    abrorCont(state){
+      return state.abrorCont
+    },
+    carBrand(state){
+      return state.carBrand
+    },
+    carType(state){
+      return state.carType
+    },
+    cars(state){
+      return state.cars
+    },
+    brands(state){
+      return state.brands
+    },
+    
   },
+  plugins: [createPersistedState({
+    paths: ['productCode', 'productName', 'abrorCont', 'carBrand', 'carType', 'cars', 'brands'] 
+  })],
 });
 
 store.subscribe((mutation, state) => {

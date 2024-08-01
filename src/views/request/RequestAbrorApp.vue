@@ -20,60 +20,84 @@
       <v-stepper-window>
         <v-stepper-window-item value="1">
           <v-card class="d-flex">
-            <v-col class="fixed-img pa-0 mt-11 hidden-xs" cols="4">
-              <v-img
-                :src="UploadIcon('../../assets/request/', 'coba3.png')"
-                cover
-                height="625"
-              >
-              </v-img>
-            </v-col>
-            <v-col class="hidden-xs" cols="4"></v-col>
             <v-col>
-              <v-img
-                class="mt-10 hidden-sm-and-up rounded-lg"
-                contain
-                :src="UploadIcon('../../assets/request/', 'mobile.png')"
-              ></v-img>
               <v-row class="mt-14 mb-4 justify-center">
                 <v-icon class="hidden-xs mr-2 ml-3" color="#001F48"
                   >mdi-book</v-icon
                 >
-                <span class="blue-text">{{ product }}</span>
+                <span class="blue-text">{{ "Takaful Abror" }}</span>
               </v-row>
               <v-row class="mt-7 mb-3">
                 <v-icon class="mr-2 mb-2 ml-3" color="#001F48"
-                  >mdi-airplane</v-icon
+                  >mdi-car-info</v-icon
                 >
-                <span class="blue-text">Data Perjalanan</span>
+                <span class="blue-text">Data Kendaraan</span>
               </v-row>
               <v-form v-model="form" class="body">
                 <v-row>
-                  <v-col cols="12" md="6">
-                    <v-autocomplete
+                  <v-col cols="12" md="4">
+                    <v-select
+                      v-model="form_data.car_brand"
+                      flat
                       variant="outlined"
-                      v-model="form_data.from"
-                      label="Keberangkatan"
-                      :items="formatted_prov"
-                      clearable
-                      prepend-inner-icon="mdi-map-marker"
-                      :rules="[Required]"
+                      label="Brand Mobil"
+                      :items="car_brand"
                       color="#001F48"
-                    ></v-autocomplete>
+                      prepend-inner-icon="mdi-car"
+                    >
+                    </v-select>
                   </v-col>
-                  <v-col cols="12" md="6">
-                    <v-autocomplete
+                  <v-col cols="12" md="4">
+                    <v-select
+                      v-model="form_data.car_type"
+                      flat
                       variant="outlined"
-                      v-model="form_data.destination"
-                      label="Destinasi"
-                      clearable
-                      :items="countries"
-                      prepend-inner-icon="mdi-map-marker"
-                      :rules="[Required]"
+                      label="Tipe Mobil"
+                      :items="filteredTypes"
                       color="#001F48"
-                    ></v-autocomplete>
+                      prepend-inner-icon="mdi-car"
+                    >
+                    </v-select>
                   </v-col>
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="4">
+                    <v-select
+                      v-model="form_data.contribution"
+                      flat
+                      variant="outlined"
+                      label="Jenis Kontribusi"
+                      :items="['Standard', 'Premium']"
+                      color="#001F48"
+                      prepend-inner-icon="mdi-car"
+                    >
+                    </v-select>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      variant="outlined"
+                      v-model="form_data.plat"
+                      label="Plat Nomor"
+                      clearable
+                      prepend-inner-icon="mdi-car-back"
+                      :rules="[Required, Capital]"
+                      color="#001F48"
+                      hint="Gunakan Kapital"
+                      persistent-hint
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-select
+                      v-model="form_data.year"
+                      flat
+                      variant="outlined"
+                      label="Tahun Keluaran"
+                      :rules="[Required]"
+                      :items="years"
+                      color="#001F48"
+                      prepend-inner-icon="mdi-calendar"
+                    >
+                    </v-select>
+                  </v-col>
+                  <v-col cols="12" md="4">
                     <v-menu
                       v-model="date_picker1"
                       :close-on-content-click="false"
@@ -85,7 +109,7 @@
                       <template v-slot:activator="{ props }">
                         <v-text-field
                           v-model="formatted_date"
-                          label="Tanggal Berangkat"
+                          label="Tanggal Mulai"
                           prepend-inner-icon="mdi-calendar"
                           v-bind="props"
                           variant="outlined"
@@ -111,69 +135,95 @@
                       ></v-date-picker>
                     </v-menu>
                   </v-col>
-                  <v-col cols="12" md="6">
-                    <v-menu
-                      v-model="date_picker2"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ props }">
-                        <v-text-field
-                          v-model="formatted_date2"
-                          label="Tanggal Pulang"
-                          prepend-inner-icon="mdi-calendar"
-                          v-bind="props"
-                          variant="outlined"
-                          readonly
-                          :rules="[ValidateDateEnd, Required]"
-                          color="#001F48"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        v-model="selected_date2"
-                        :min="todaydate"
-                        @update:model-value="
-                          (value) =>
-                            UpdateDate(
-                              'form_data',
-                              'date_end',
-                              'date_picker2',
-                              value
-                            )
-                        "
-                        class="body"
-                        color="#001F48"
-                      ></v-date-picker>
-                    </v-menu>
-                  </v-col>
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="4">
                     <v-text-field
+                      v-model="formatted_date2"
+                      label="Tanggal Selesai"
+                      prepend-inner-icon="mdi-calendar"
                       variant="outlined"
-                      v-model="form_data.capacity"
-                      label="Jumlah Peserta"
-                      clearable
-                      prepend-inner-icon="mdi-account"
-                      :rules="[OnlyNumbers, Required]"
+                      readonly
                       color="#001F48"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="6">
-                    <v-select
+                  <v-col cols="12" md="4">
+                    <v-text-field
                       variant="outlined"
-                      v-model="form_data.contribution"
-                      label="Jenis Kontribusi"
+                      v-model="form_data.chassis"
+                      label="Nomor Rangka"
                       clearable
-                      :items="contribution"
-                      prepend-inner-icon="mdi-format-list-bulleted-type"
+                      prepend-inner-icon="mdi-car-door"
                       :rules="[Required]"
                       color="#001F48"
-                    ></v-select>
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      variant="outlined"
+                      v-model="form_data.engine"
+                      label="Nomor Mesin"
+                      clearable
+                      prepend-inner-icon="mdi-engine"
+                      :rules="[Required]"
+                      color="#001F48"
+                    ></v-text-field>
                   </v-col>
                 </v-row>
-
+                <div class="d-flex align-center mt-5">
+                  <v-btn color="orange" @click="CheckPremi">
+                    <span class="body">Cek Premi</span>
+                  </v-btn>
+                  <span v-if="premi !== null" class="ml-3">{{ Premi }}</span>
+                </div>
+                <v-row class="mt-7 mb-3">
+                  <v-icon class="mr-2 ml-3" color="#001F48">mdi-camera</v-icon>
+                  <span class="blue-text">Foto Kendaraan</span>
+                </v-row>
+                <v-row>
+                  <v-col cols="6" md="3">
+                    <v-file-input
+                      variant="outlined"
+                      label="Foto depan"
+                      chips
+                      prepend-inner-icon="mdi-car"
+                      accept="image/png, image/jpeg, image/jpg"
+                      @change="(event) => UploadImg(event, 'image1')"
+                      :rules="[Required]"
+                    ></v-file-input>
+                  </v-col>
+                  <v-col cols="6" md="3">
+                    <v-file-input
+                      variant="outlined"
+                      label="Foto kanan"
+                      chips
+                      prepend-inner-icon="mdi-car-side"
+                      accept="image/png, image/jpeg, image/jpg"
+                      @change="(event) => UploadImg(event, 'image2')"
+                      :rules="[Required]"
+                    ></v-file-input>
+                  </v-col>
+                  <v-col cols="6" md="3">
+                    <v-file-input
+                      variant="outlined"
+                      label="Foto kiri"
+                      chips
+                      prepend-inner-icon="mdi-car-side"
+                      accept="image/png, image/jpeg, image/jpg"
+                      @change="(event) => UploadImg(event, 'image3')"
+                      :rules="[Required]"
+                    ></v-file-input>
+                  </v-col>
+                  <v-col cols="6" md="3">
+                    <v-file-input
+                      variant="outlined"
+                      label="Foto Belakang"
+                      chips
+                      prepend-inner-icon="mdi-car-back"
+                      accept="image/png, image/jpeg, image/jpg"
+                      @change="(event) => UploadImg(event, 'image4')"
+                      :rules="[Required]"
+                    ></v-file-input>
+                  </v-col>
+                </v-row>
                 <!-- Profil Peserta -->
                 <v-row>
                   <v-col>
@@ -186,7 +236,7 @@
                   </v-col>
                 </v-row>
                 <v-row>
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="4">
                     <v-text-field
                       variant="outlined"
                       v-model="form_data.fullname"
@@ -196,17 +246,7 @@
                       color="#001F48"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      variant="outlined"
-                      v-model="form_data.birthplace"
-                      label="Tempat Lahir"
-                      prepend-inner-icon="mdi-map-marker"
-                      :rules="[Required, OnlyAlphabet]"
-                      color="#001F48"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="4">
                     <v-menu
                       v-model="date_picker3"
                       :close-on-content-click="false"
@@ -243,7 +283,7 @@
                       ></v-date-picker>
                     </v-menu>
                   </v-col>
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="4">
                     <v-select
                       variant="outlined"
                       v-model="form_data.gender"
@@ -254,7 +294,7 @@
                       color="#001F48"
                     ></v-select>
                   </v-col>
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="4">
                     <v-text-field
                       variant="outlined"
                       v-model="form_data.phone"
@@ -264,76 +304,18 @@
                       color="#001F48"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
+                  <v-col cols="12" md="4">
+                    <v-file-input
                       variant="outlined"
-                      v-model="form_data.passport"
-                      label="Passport"
-                      prepend-inner-icon="mdi-passport"
+                      label="Foto KTP"
+                      chips
+                      prepend-inner-icon="mdi-card-account-details"
+                      accept="image/png, image/jpeg, image/jpg"
+                      @change="(event) => UploadImg(event, 'image5')"
                       :rules="[Required]"
-                      color="#001F48"
-                    ></v-text-field>
+                    ></v-file-input>
                   </v-col>
                 </v-row>
-                <v-row v-if="form_data.capacity > 1" class="mt-1 mb-5">
-                  <v-icon class="mr-2 ml-3" color="#001F48"
-                    >mdi-account-group</v-icon
-                  >
-                  <span class="blue-text">Profil Peserta Lain</span>
-                </v-row>
-                <!-- Peserta Tambahan -->
-                <div v-for="(other, index) in form_data.others" :key="index">
-                  <v-row class="mt-1">
-                    <v-icon small class="mr-2 ml-3" color="#001F48"
-                      >mdi-account</v-icon
-                    >
-                    <div class="small-blue-text">Peserta {{ index + 1 }}</div>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        variant="outlined"
-                        v-model="other.fullname"
-                        label="Nama Lengkap"
-                        prepend-inner-icon="mdi-badge-account"
-                        :rules="[OnlyAlphabet, Required]"
-                        color="#001F48"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-menu
-                        v-model="date_picker4[index]"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="auto"
-                      >
-                        <template v-slot:activator="{ props }">
-                          <v-text-field
-                            v-model="formatted_date4[index]"
-                            label="Tanggal Lahir"
-                            prepend-inner-icon="mdi-calendar"
-                            v-bind="props"
-                            variant="outlined"
-                            readonly
-                            :rules="[Required]"
-                            color="#001F48"
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker
-                          v-model="selected_date4[index]"
-                          @update:model-value="
-                            (value) => UpdateFormatDate(index, value)
-                          "
-                          color="#001F48"
-                          class="body"
-                          :max="todaydate"
-                        ></v-date-picker>
-                      </v-menu>
-                    </v-col>
-                  </v-row>
-                </div>
               </v-form>
               <v-row class="ma-3">
                 <v-btn
@@ -367,30 +349,22 @@
                 <tr>
                   <th>Nama Peserta</th>
                   <th>Produk</th>
+                  <th>Mobil</th>
                   <th>Jenis Kontribusi</th>
-                  <th>Destinasi</th>
                   <th>Tanggal</th>
-                  <th>Harga per Peserta</th>
+                  <th>Harga Premi</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>{{ form_data.fullname }}</td>
                   <td>{{ form_data.product_name }}</td>
+                  <td>{{ form_data.car_brand + " " + form_data.car_type }}</td>
                   <td>{{ form_data.contribution }}</td>
-                  <td>{{ form_data.destination }}</td>
                   <td>
                     {{ formatted_date + "  -  " + formatted_date2 }}
                   </td>
-                  <td>{{ FormatCurrency(form_data.product_price) }}</td>
-                </tr>
-                <tr v-for="i in form_data.capacity - 1" :key="i">
-                  <td>{{ form_data.others[i - 1].fullname }}</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td>{{ FormatCurrency(form_data.product_price) }}</td>
+                  <td>{{ FormatCurrency(form_data.price) }}</td>
                 </tr>
                 <tr>
                   <td></td>
@@ -407,11 +381,7 @@
                   <td></td>
                   <td>Total :</td>
                   <td>
-                    {{
-                      FormatCurrency(
-                        form_data.product_price * form_data.capacity
-                      )
-                    }}
+                    {{ FormatCurrency(form_data.price) }}
                   </td>
                 </tr>
               </tbody>
@@ -431,14 +401,11 @@
                   class="pb-0 grey--text text--darken-1"
                   cols="5"
                   style="border-top: 1px solid black"
-                  >Harga / peserta</v-col
+                  >Harga premi</v-col
                 >
                 <v-col cols="1" style="border-top: 1px solid">:</v-col>
                 <v-col cols="6" style="border-top: 1px solid">{{
-                  FormatCurrency(form_data.product_price) +
-                  " (x" +
-                  form_data.capacity +
-                  ")"
+                  FormatCurrency(form_data.price)
                 }}</v-col>
 
                 <v-col class="grey--text text--darken-1" cols="5"
@@ -450,7 +417,7 @@
                 <v-col cols="5" class="d-flex justify-end">Total</v-col>
                 <v-col cols="1">:</v-col>
                 <v-col cols="6" style="border-top: 1px solid">{{
-                  FormatCurrency(form_data.product_price * form_data.capacity)
+                  FormatCurrency(form_data.price)
                 }}</v-col>
               </v-row>
             </div>
@@ -538,60 +505,57 @@ import axios from "../../axios";
 import { mapGetters } from "vuex";
 
 export default {
-  name: "RequestApp",
+  name: "RequestAbrorApp",
   data: () => {
     return {
-      isFormValid: true,
-      valuee: null,
-      label: "Field 1",
       e1: 0,
       id: "",
       confirm_dialog: false,
-      countries: [],
-      contribution: [],
+      contribution: "",
       date_picker1: false,
-      date_picker2: false,
       date_picker3: false,
-      date_picker4: [],
       selected_date: null,
-      selected_date2: null,
       selected_date3: null,
-      selected_date4: [],
       product: "",
       product_id: "",
+      car_brand: [],
+      years: ["2019", "2020", "2021", "2022", "2023", "2024"],
 
       capacity: 1,
       //data form
       form_data: {
-        product_code: "",
-        product_name: "",
-        product_price: null,
-
-        from: null,
-        destination: null,
+        contribution: null,
+        product_code: null,
+        product_name: "Takaful Abror",
+        car_brand: null,
+        car_type: null,
+        year: null,
         date_start: "",
         date_end: "",
-        contribution: null,
-        capacity: 1,
-
+        price: null,
+        plat: null,
+        chassis: null,
+        engine: null,
+        image1: null,
+        image2: null,
+        image3: null,
+        image4: null,
         fullname: "",
         birthdate: "",
-        birthplace: "",
         gender: null,
         phone: "",
-        passport: "",
-
-        others: [],
+        id_user: null,
       },
-      day_max: null,
-
-      banks: "Virtual Account Bank Muamalat / Bank Central Asia",
       genders: ["Laki-laki", "Perempuan"],
 
       //rules
       OnlyAlphabet: (v) =>
         /^[a-zA-Z\s]*$/.test(v) || "Tidak boleh ada simbol atau angka",
       Required: (v) => !!v || "Harus Diisi",
+      Capital: (value) => {
+        const regex = /^[A-Z0-9\s-]+$/;
+        return regex.test(value) || "Gunakan kapital";
+      },
       todaydate: new Date().toISOString().split("T")[0],
 
       //snackbar
@@ -599,93 +563,77 @@ export default {
       text: "",
       timeout: 2000,
 
-      payment: {
-        trx_id: "",
-        no_va: "",
-        limit: "",
-        status: "",
-      },
-
       //dialog
       dialog: false,
       dialog_title: "",
       dialog_text: "",
       dialog_icon: "",
       icon_color: "",
-      city: [],
 
       //mobile
       table: [],
-      formatted_prov: [
-        "Aceh",
-        "Sumatera Utara",
-        "Sumatera Selatan",
-        "Sumatera Barat",
-        "Bengkulu",
-        "Riau",
-        "Kepulauan Riau",
-        "Jambi",
-        "Lampung",
-        "Bangka Belitung",
-        "Kalimantan Barat",
-        "Kalimantan Timur",
-        "Kalimantan Selatan",
-        "Kalimantan Tengah",
-        "Kalimantan Utara",
-        "Banten",
-        "DKI Jakarta",
-        "Jawa Barat",
-        "Jawa Tengah",
-        "Daerah Istimewa Yogyakarta",
-        "Jawa Timur",
-        "Bali",
-        "Nusa Tenggara Timur",
-        "Nusa Tenggara Barat",
-        "Gorontalo",
-        "Sulawesi Barat",
-        "Sulawesi Tengah",
-        "Sulawesi Utara",
-        "Sulawesi Tenggara",
-        "Sulawesi Selatan",
-        "Maluku Utara",
-        "Maluku",
-        "Papua Barat",
-        "Papua",
-        "Papua Tengah",
-        "Papua Pegunungan",
-        "Papua Selatan",
-        "Papua Barat Daya",
-      ],
+
       trx_id: "",
+      image1: null,
+      image2: null,
+      image3: null,
+      image4: null,
+      image5: null,
+      select: [],
+      vehicle_price: null,
+      percentage: null,
+      premi: null,
     };
   },
   computed: {
-    ...mapGetters(["productCode", "productName"]),
+    ...mapGetters(["carBrand", "carType", "abrorCont", "cars", "brands"]),
     formatted_date() {
-      return this.selected_date
-        ? func.FormatOutputDate(this.selected_date)
-        : "";
+      if (this.selected_date) {
+        return func.FormatOutputDate(this.selected_date, "simple");
+      }
+      return "";
     },
     formatted_date2() {
-      return this.selected_date2
-        ? func.FormatOutputDate(this.selected_date2)
-        : "";
+      if (!this.selected_date) return "";
+      const date = new Date(this.selected_date);
+      date.setFullYear(date.getFullYear() + 1);
+      const newDate = date.toISOString().split("T")[0];
+      return func.FormatOutputDate(newDate, "simple", "api");
     },
     formatted_date3() {
       return this.selected_date3
         ? func.FormatOutputDate(this.selected_date3)
         : "";
     },
-    formatted_date4() {
-      return this.selected_date4.map((date) =>
-        date ? func.FormatOutputDate(date) : ""
+    filteredTypes() {
+      const selectedBrand = this.form_data.car_brand;
+      const car = this.select.find((c) => c.brand === selectedBrand);
+      return car ? car.type : [];
+    },
+    isFormValid() {
+      return (
+        this.form_data.car_type &&
+        this.form_data.contribution &&
+        this.form_data.plat &&
+        /^[A-Z0-9\s-]+$/.test(this.form_data.plat)
       );
+    },
+    Premi() {
+      return `Harga Premi : ${new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+      }).format(this.vehicle_price)} (Harga Kendaraan) x ${
+        this.percentage
+      }% = ${new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+      }).format(this.premi)} /tahun`;
     },
   },
   watch: {
-    "form_data.capacity"(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.SyncOthers();
+    "form_data.car_brand": function (newBrand) {
+      if (newBrand) {
+        this.form_data.car_type = null;
       }
     },
   },
@@ -693,9 +641,17 @@ export default {
     async Enroll() {
       this.confirm_dialog = false;
       try {
-        this.form_data.capacity = parseInt(this.form_data.capacity, 10);
         this.form_data.gender = func.GenderFormat(this.form_data.gender);
-        const response = await axios.post("/req-prod", {
+        this.form_data.image1 = this.image1.replace(/^.+?base64,/, "");
+        this.form_data.image2 = this.image2.replace(/^.+?base64,/, "");
+        this.form_data.image3 = this.image3.replace(/^.+?base64,/, "");
+        this.form_data.image4 = this.image4.replace(/^.+?base64,/, "");
+        this.form_data.id_user = this.image5.replace(/^.+?base64,/, "");
+        const date = new Date(this.selected_date);
+        date.setFullYear(date.getFullYear() + 1);
+        const newDate = date.toISOString().split("T")[0];
+        this.form_data.date_end = newDate
+        const response = await axios.post("/req-abror", {
           ...this.form_data,
         });
         if (response.data.status) {
@@ -705,7 +661,7 @@ export default {
           this.DialogActive("Pendaftaran Gagal : ", response.data.message);
         }
       } catch (error) {
-        this.DialogActive("Pendaftaran Gagal : ", response.data.message);
+        this.DialogActive("Pendaftaran Gagal : ", error.message);
       }
     },
     async Pay() {
@@ -717,60 +673,28 @@ export default {
         window.snap.pay(result.token, {
           onSuccess: (result) => {
             console.log("Payment successful", result);
-            this.UpdateEnrollStatus(this.trx_id)
+            this.UpdateEnrollStatus(this.trx_id);
           },
           onPending: (result) => {
             console.log("Payment pending", result);
-            this.UpdateEnrollStatus(this.trx_id)
+            this.UpdateEnrollStatus(this.trx_id);
           },
           onError: (result) => {
             console.log("Payment error", result);
-            this.UpdateEnrollStatus(this.trx_id)
+            this.UpdateEnrollStatus(this.trx_id);
           },
           onClose: (result) => {
             console.log("Payment closed", result);
-            this.UpdateEnrollStatus(this.trx_id)
+            this.UpdateEnrollStatus(this.trx_id);
           },
         });
       } catch (error) {
         this.DialogActive("Pembayaran Gagal", error);
       }
     },
-    async GetPrice(code, period, type) {
-      try {
-        const response = await axios.post("/get-price", {
-          group_code: code,
-          period: period,
-          type: type,
-        });
-        if (response.data.status) {
-          this.form_data.product_price = response.data.data.price;
-          this.form_data.product_code = response.data.data.code;
-          this.form_data.product_name = response.data.data.name;
-        } else {
-          console.error("Error retrieving details:", response.data.message);
-        }
-      } catch (error) {
-        console.error("Error retrieving details:", error);
-      }
-    },
-    async DayMax(code) {
-      try {
-        const response = await axios.post("/prod-daymax", {
-          group_code: code,
-        });
-        if (response.data.status) {
-          this.day_max = response.data.data.day_max;
-        } else {
-          console.error("Error retrieving details:", response.data.message);
-        }
-      } catch (error) {
-        console.error("Error retrieving details:", error);
-      }
-    },
     async UpdateEnrollStatus(trx_id) {
       try {
-        const response = await axios.post("/enroll-status", {
+        const response = await axios.post("/enroll-status-abror", {
           trx_id: trx_id,
         });
         if (response.data.status) {
@@ -783,7 +707,7 @@ export default {
             setTimeout(() => {
               this.$router.push("/transaction");
             }, 1000);
-          } 
+          }
         } else {
           console.error("Error Update Enroll Status:", response.data.message);
           this.DialogActive("Pendaftaran Gagal : ", response.data.message);
@@ -804,76 +728,17 @@ export default {
 
       return (isnumber && iszero) || "Input data salah";
     },
-    UpdateDate(formKey, dateKey, menuKey, value) {
-      this[formKey][dateKey] = func.FormatDate(value);
-      this[menuKey] = false;
-    },
-    UpdateFormatDate(index, value) {
-      this.form_data.others[index].birthdate = func.FormatDate(value);
-      this.selected_date4[index] = value;
-      this.date_picker4[index] = false;
-    },
-    SyncOthers() {
-      const capacity = this.form_data.capacity - 1;
-      this.form_data.others = [];
-      for (let i = 0; i < capacity; i++) {
-        this.form_data.others.push({
-          fullname: "",
-          birthdate: "",
-        });
-        this.selected_date4.push(null);
-        this.date_picker4.push(false);
-      }
-    },
-    ValidateDateEnd(value) {
-      if (
-        new Date(this.form_data.date_end) >
-          new Date(this.form_data.date_start) ||
-        !value
-      ) {
-        return true;
-      } else {
-        return "Input tanggal setelah keberangkatan!";
-      }
-    },
     CheckPrice() {
       if (!this.form) {
         this.snackbar = true;
         this.text = "Isi form sesuai dengan aturan";
       } else {
-        const startdate = new Date(this.form_data.date_start);
-        const enddate = new Date(this.form_data.date_end);
-        const timediff = enddate - startdate;
-        const totaldays = Math.ceil(timediff / (1000 * 60 * 60 * 24));
-        if (totaldays < 1) {
-          this.snackbar = true;
-          this.text = "Tanggal berangkat harus lebih awal dari tanggal pulang";
-        } else {
-          if (totaldays > this.day_max) {
-            window.scrollTo({
-              top: 0,
-            });
-            this.DialogActive(
-              "Periode melebihi maksimal produk",
-              "Produk ini memiliki periode maksimal " +
-                this.day_max.toString() +
-                " hari",
-              "mdi-alert-circle-outline",
-              "red"
-            );
-          } else {
-            this.GetPrice(
-              this.product_id,
-              totaldays,
-              this.form_data.contribution
-            );
-            this.AddItem();
-            this.e1 = 1;
-            window.scrollTo({
-              top: 0,
-            });
-          }
-        }
+        this.CheckPremi();
+        this.AddItem();
+        this.e1 = 1;
+        window.scrollTo({
+          top: 0,
+        });
       }
     },
     FormatCurrency(amount) {
@@ -888,12 +753,16 @@ export default {
       this.table.splice(0, this.table.length);
       const items = [
         { label: "Nama Pendaftar", value: this.form_data.fullname },
-        { label: "Jumlah Peserta", value: this.form_data.capacity },
-        { label: "Produk", value: this.product },
+        { label: "Produk", value: this.product_name },
         { label: "Kontribusi", value: this.form_data.contribution },
-        { label: "Destinasi", value: this.form_data.destination },
-        { label: "Berangkat", value: this.formatted_date },
-        { label: "Pulang", value: this.formatted_date2 },
+        {
+          label: "Mobil",
+          value: this.form_data.car_brand + " " + this.form_data.car_type,
+        },
+        {
+          label: "Periode",
+          value: this.formatted_date + " - " + this.formatted_date2,
+        },
       ];
       this.table.push(...items);
     },
@@ -904,42 +773,57 @@ export default {
       this.icon_color = color;
       this.dialog = true;
     },
+    UploadImg(event, target) {
+      const input = event.target;
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this[target] = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    },
+    UpdateDate(formKey, dateKey, menuKey, value) {
+      this[formKey][dateKey] = func.FormatDate(value);
+      this[menuKey] = false;
+    },
+    async CheckPremi() {
+      if (this.isFormValid) {
+        try {
+          const response = await axios.post("/get-price-abror", {
+            plat_code: this.form_data.plat,
+            contribution: this.form_data.contribution,
+            type: this.form_data.car_type,
+          });
+          if (response.data.status) {
+            this.form_data.product_code = response.data.data.product_code;
+            this.form_data.price = response.data.data.price;
+            this.percentage = response.data.data.percentage;
+            this.vehicle_price = response.data.data.vehicle_price;
+            this.premi = response.data.data.price;
+          } else {
+            console.error("Error retrieving details:", response.data.message);
+          }
+        } catch (error) {
+          console.error("Error retrieving details:", error);
+        }
+      } else {
+        this.DialogActive(
+          "isi form dengan benar",
+          "Isi data brand, tipe, dan plat nomor terlebih dahulu",
+          "mdi-alert-circle-outline",
+          "red"
+        );
+      }
+    },
   },
-  created() {
-    const form = JSON.parse(localStorage.getItem("form_safari")) || {};
-    this.capacity = form.capacity.toString();
-
-    if (form.from !== "") {
-      this.form_data.from = form.from;
-    }
-    if (form.destination !== "") {
-      this.form_data.destination = form.destination;
-    }
-    this.form_data.date_start = form.date_start;
-    this.form_data.date_end = form.date_end;
-    this.form_data.contribution = form.type;
-
-    if (
-      this.form_data.date_start !== undefined &&
-      this.form_data.date_start !== ""
-    ) {
-      this.selected_date = new Date(this.form_data.date_start);
-    }
-    if (
-      this.form_data.date_end !== undefined &&
-      this.form_data.date_end !== ""
-    ) {
-      this.selected_date2 = new Date(this.form_data.date_end);
-    }
-
-    this.countries = JSON.parse(localStorage.getItem("countries"));
-    this.contribution = JSON.parse(localStorage.getItem("contribution"));
-  },
-
   mounted() {
-    this.product = this.productName;
-    this.product_id = this.productCode;
-    this.DayMax(this.productCode);
+    this.contribution = this.abrorCont;
+    this.form_data.contribution = this.abrorCont;
+    this.form_data.car_brand = this.carBrand;
+    this.form_data.car_type = this.carType;
+    this.select = this.cars;
+    this.car_brand = this.brands;
   },
 };
 </script>
@@ -962,5 +846,9 @@ export default {
 }
 .full-height {
   height: 100vh;
+}
+.v-messages__message {
+  font-size: medium;
+  font-weight: 600;
 }
 </style>

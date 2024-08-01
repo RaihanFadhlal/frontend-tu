@@ -6,6 +6,7 @@ import LandingApp from './views/landing/LandingApp.vue';
 import ExploreApp from './views/product/ExploreApp.vue';
 import DetailApp from './views/product/DetailApp.vue';
 import RequestApp from './views/request/RequestApp.vue';
+import RequestAbrorApp from './views/request/RequestAbrorApp.vue';
 import ClaimReqApp from './views/request/ClaimReqApp.vue';
 import LoginApp from './views/auth/LoginApp.vue';
 import RegisterApp from './views/auth/RegisterApp.vue';
@@ -15,6 +16,8 @@ import PolicyApp from './views/account/PolicyApp.vue';
 import ClaimApp from './views/account/ClaimApp.vue';
 import TransactionApp from './views/account/TransactionApp.vue';
 import store from './store';
+import AbrorApp from './views/product/AbrorApp.vue';
+import AdminApp from './views/admin/AdminApp.vue';
 
 const routes = [{
     path: '/',
@@ -25,16 +28,24 @@ const routes = [{
     component: ExploreApp
   },
   {
-    path: '/abror',
-    component: ExploreApp
-  },
-  {
     path: '/detail',
     component: DetailApp
   },
   {
+    path: '/abror',
+    component: AbrorApp
+  },
+  {
     path: '/request',
     component: RequestApp,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  
+  {
+    path: '/request-abror',
+    component: RequestAbrorApp,
     meta: {
       requiresAuth: true
     }
@@ -89,6 +100,14 @@ const routes = [{
       requiresAuth: true
     }
   },
+  {
+    path: '/admin-dashboard',
+    component: AdminApp,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,  // Halaman yang hanya dapat diakses oleh admin
+    }
+  },
 ];
 
 const router = createRouter({
@@ -99,7 +118,16 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (store.state.isAuthenticated) {
-      next();
+      if (to.matched.some(record => record.meta.requiresAdmin)) {
+        const userType = store.state.userType;
+        if (userType === 'admin') {
+          next();
+        } else {
+          next('/'); 
+        }
+      } else {
+        next();
+      }
     } else {
       try {
         await store.dispatch('refreshToken');
@@ -108,7 +136,7 @@ router.beforeEach(async (to, from, next) => {
         } else {
           next('/login');
         }
-      } catch {
+      } catch (error) {
         next('/login');
       }
     }
@@ -116,5 +144,6 @@ router.beforeEach(async (to, from, next) => {
     next();
   }
 });
+
 
 export default router;

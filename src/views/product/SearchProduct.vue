@@ -141,7 +141,7 @@
 </template>
 
 <script>
-import axios from "../../axios"
+import axios from "../../axios";
 import func from "../../function";
 
 export default {
@@ -200,7 +200,7 @@ export default {
         destination: null,
         date_start: "",
         date_end: "",
-        capacity: "",
+        capacity: 1,
       },
 
       date_menu: false,
@@ -225,26 +225,53 @@ export default {
         ? func.FormatOutputDate(this.selected_date2)
         : "";
     },
+    ValidateDateEnd() {
+      if (!this.selected_date) {
+        return true;
+      }
+      const startDate = new Date(this.selected_date);
+      const endDate = new Date(this.selected_date2);
+      return (
+        endDate > startDate ||
+        "Tanggal pulang harus lebih dari tanggal berangkat"
+      );
+    },
   },
   async created() {
-    await this.GetCountries()
+    await this.GetCountries();
     const form = JSON.parse(localStorage.getItem("form_safari")) || {};
     this.form_data.capacity = form.capacity.toString();
-    this.form_data.from = form.from;
-    this.form_data.destination = form.destination;
+    if (form.from !== "") {
+      this.form_data.from = form.from;
+    }
+    if (form.destination !== "") {
+      this.form_data.destination = form.destination;
+    }
     this.form_data.date_start = form.date_start;
     this.form_data.date_end = form.date_end;
     this.form_data.type = form.type;
 
-    this.selected_date = new Date(this.form_data.date_start);
-    this.selected_date2 = new Date(this.form_data.date_end);
+    if (
+      this.form_data.date_start !== undefined &&
+      this.form_data.date_start !== ""
+    ) {
+      this.selected_date = new Date(this.form_data.date_start);
+    }
+    if (
+      this.form_data.date_end !== undefined &&
+      this.form_data.date_end !== ""
+    ) {
+      this.selected_date2 = new Date(this.form_data.date_end);
+    }
   },
   methods: {
     async GetCountries() {
       try {
-        const response = await axios.get("/countries")
+        const response = await axios.get("/countries");
         if (response.data.status) {
-          this.countries = response.data.data.countries.split(',').map(country => country.trim());
+          this.countries = response.data.data.countries
+            .split(",")
+            .map((country) => country.trim());
         } else {
           console.error("Error retrieving countries:", response.data.message);
         }
@@ -259,13 +286,6 @@ export default {
     UpdateDate2(value) {
       this.form_data.date_end = func.FormatDate(value);
       this.date_menu2 = false;
-    },
-    ValidateDateEnd(value) {
-      if (new Date(value) > new Date(this.form_data.date_start) || !value) {
-        return true;
-      } else {
-        return "Input tanggal setelah keberangkatan!";
-      }
     },
     DialogActive(title, msg) {
       this.dialog_title = title;

@@ -45,16 +45,6 @@
                       <v-form class="body">
                         <v-row justify="center">
                           <v-col cols="12" sm="6" md="5" class="py-0">
-                            <v-text-field
-                              variant="outlined"
-                              v-model="form_data.trx_no"
-                              label="Nomor Transaksi"
-                              clearable
-                              color="#001F48"
-                              prepend-inner-icon="mdi-invoice-text-edit"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col cols="12" sm="6" md="5" class="py-0">
                             <v-select
                               variant="outlined"
                               v-model="form_data.product"
@@ -80,13 +70,7 @@
                         <v-row justify="center">
                           <v-btn
                             color="#F57C00"
-                            @click="
-                              GetTransaction(
-                                form_data.trx_no,
-                                form_data.product,
-                                form_data.status
-                              )
-                            "
+                            @click="GetTrx(form_data.product, form_data.status)"
                           >
                             <span class="body">Cari</span>
                           </v-btn>
@@ -134,16 +118,16 @@
                                     class="body mb-2"
                                     style="color: #001f48; font-size: large"
                                   >
-                                    {{ trx.product }}
+                                    {{ trx.product_name }}
                                   </div>
                                   <div
                                     class="body mb-2"
                                     style="color: #23cac0; font-size: medium"
                                   >
-                                    {{ trx.price }}
+                                    {{ FormatCurrency(trx.total_price) }}
                                   </div>
                                   <div class="body mb-2" style="color: black">
-                                    No Bayar : {{ trx.no_va }}
+                                    No Transaksi : {{ trx.transaction_id }}
                                   </div>
                                 </v-col>
                                 <v-col
@@ -155,13 +139,13 @@
                                     class="body mb-2"
                                     style="color: black; font-size: medium"
                                   >
-                                    {{ FormatDate(trx.date) }}
+                                    {{ FormatDate(trx.created_at) }}
                                   </div>
                                   <div
                                     class="body mb-2"
                                     style="font-size: small"
                                   >
-                                    {{ FormatDate(trx.due) }}
+                                    {{ FormatDateDetail(trx.expired_at) }}
                                   </div>
                                 </v-col>
                               </v-row>
@@ -177,45 +161,40 @@
                                 "
                                 >{{ trx.status }}
                               </v-btn>
-                              <v-btn
-                              class="ml-1"
-                                rounded
-                                depressed
-                                color="#F57C00"
-                                style="color: white"
-                                @click="GetTransactionDetail(trx.trx_id)"
-                                >Detail
-                              </v-btn>
                             </v-col>
                           </v-row>
                         </v-card-text>
                       </v-card>
                     </v-col>
-                    <v-pagination
-                      v-model="current_page"
-                      :length="pages"
-                      @update:modelValue="UpdatePage"
-                      color="blue lighten-5"
-                      class="mx-auto mt-2"
-                    ></v-pagination>
                   </v-row>
+                  <v-pagination
+                    v-model="current_page"
+                    :length="pages"
+                    @update:modelValue="UpdatePage"
+                    color="blue lighten-5"
+                    class="mx-auto mt-8 mb-5"
+                  ></v-pagination>
                 </v-card>
               </v-col>
             </v-col>
           </v-row>
-        </v-card> 
+        </v-card>
         <v-dialog v-model="dialog_detail" max-width="900px">
           <v-card class="body">
             <div class="d-flex align-center">
-            <span >
-              <v-img
-                :src="UploadIcon('../../assets/request/', 'logotransparan.png')"
-                width="60"
-                height="60"
-              ></v-img>
-            </span>
-            <span class="ml-1" style="font-size: large;"> Detail Transaksi </span>
-          </div>
+              <span>
+                <v-img
+                  :src="
+                    UploadIcon('../../assets/request/', 'logotransparan.png')
+                  "
+                  width="60"
+                  height="60"
+                ></v-img>
+              </span>
+              <span class="ml-1" style="font-size: large">
+                Detail Transaksi
+              </span>
+            </div>
             <v-divider class=""></v-divider>
             <v-card-text class="body">
               <div v-for="(trx, i) in trx_detail" :key="i">
@@ -227,9 +206,11 @@
                   <v-icon class="mx-3 mb-1" color="#001F48" small>{{
                     section.icon
                   }}</v-icon>
-                  <span class="blue-text font-weight-bold" style="font-size: medium">{{
-                    section.title
-                  }}</span>
+                  <span
+                    class="blue-text font-weight-bold"
+                    style="font-size: medium"
+                    >{{ section.title }}</span
+                  >
                   <v-row class="ml-7 mt-3">
                     <v-col
                       v-for="(field, i) in section.fields"
@@ -311,7 +292,7 @@ import FooterApp from "../../components/FooterApp.vue";
 import AccountDrawer from "./AccountDrawer.vue";
 import AccountMenu from "./AccountMenu.vue";
 import func from "../../function";
-//   import axios from "axios"
+import axios from "../../axios";
 //   import moment from "moment"
 
 export default {
@@ -345,50 +326,23 @@ export default {
     dialog_title: "",
 
     products: [
-      "Takaful Safari Umroh Plus Covid New Normal",
       "Takaful Safari Umroh Afdhol",
       "Takaful Safari Umroh dan Haji Khusus",
       "Takaful Safari Multitrip",
-      "Takaful Safari Umroh Non Covid (50 Ribu)",
-      "Takaful Safari Umroh Non Covid (Plus Zam Zam)",
+      "Takaful Abror",
     ],
-    country: ["Saudi Arabia", "Turki"],
     pay_status: ["Menunggu Pembayaran", "Gagal", "Berhasil"],
 
     form_data: {
-      trx_no: "",
-      product: "",
-      status: "",
+      product: null,
+      status: null,
     },
 
     date_menu: false,
     selected_date: null,
 
     current_page: 1,
-    per_page: 5,
-
-    trx_detail: [
-      {
-        trx_id: "TRXTSUHK001",
-        price: "Rp 100.000,00",
-        no_va: "87432478221",
-        product: "Takaful Safari Umroh dan Haji Khusus",
-        status: "Menunggu Pembayaran",
-        from: "DKI Jakarta",
-        destination: "Saudi Arabia",
-        capacity: "1",
-        date_start: "2024-07-08",
-        date_end: "2024-07-15",
-        contribution: "Basic",
-        fullname: "Raihan Fadhlal Aziz",
-        birthdate: "10 Oktober 2001",
-        birthplace: "Bogor",
-        gender: "Laki-laki",
-        heir: "Fulan bin Fulan",
-        passport: "A 1234567",
-        others: [],
-      },
-    ],
+    per_page: 4,
 
     detail_sections: [
       {
@@ -450,53 +404,33 @@ export default {
   }),
 
   methods: {
+    async GetTrx(name, status) {
+      try {
+        const response = await axios.post("/get-trx", {
+          product_name: name,
+          status: status,
+        });
+        if (response.data.status) {
+          if (response.data.data == null) {
+            this.DialogActive("Belum ada polis yang terdaftar!");
+            this.dialog_trx = false;
+          } else {
+            this.transactions = response.data.data;
+            this.dialog_trx = false;
+          }
+        } else {
+          console.error("Error retrieving countries:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving countries:", error);
+      }
+    },
     UploadIcon(path, name) {
       return new URL(path + name, import.meta.url).href;
     },
     Reload() {
       location.reload();
     },
-    // GetTransaction(trxid, name, stat) {
-    //   let formdata = {
-    //     id: func.UsersID(),
-    //     trx_id: trxid,
-    //     product: name,
-    //     status: stat,
-    //   };
-    //   let param = func.ParamPOST(formdata);
-    //   axios
-    //     .post(func.UrlPOST("apiSearchTransaction"), param, {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     })
-    //     .then((response) => {
-    //       let feedback = response.data;
-    //       if (feedback.length > 0) {
-    //         moment.locale("id");
-    //         if (feedback[0].status === true) {
-    //           this.transactions = feedback.map((item) => ({
-    //             ...item.data,
-    //             price: func.FormatCurrency(item.data.price),
-    //             status: func.FormatStatus(item.data.status),
-    //             date: func.FormatCustomBirthDate(moment(item.data.date)),
-    //             due: moment(item.data.due)
-    //               .utc()
-    //               .locale("id")
-    //               .format("DD MMMM YYYY HH:mm:ss"),
-    //           }));
-    //         } else {
-    //           this.DialogActive("Failed (1) :  ", feedback[0].message);
-    //         }
-    //       } else {
-    //         this.DialogActive("Transaksi tidak ditemukan!");
-    //       }
-    //     })
-    //     .catch((e) => {
-    //       this.DialogActive("Failed (3) :", e);
-    //     });
-    //   this.dialog_transaction = false;
-    // },
     UpdateDate(value) {
       this.form_data.date_start = func.FormatDate(value);
       this.date_menu = false;
@@ -506,47 +440,14 @@ export default {
       this.dialog_text = msg;
       this.dialog_err = true;
     },
-    // GetTransactionDetail(trxid) {
-    //   let formdata = {
-    //     id: func.UsersID(),
-    //     trx_id: trxid,
-    //   };
-    //   let param = func.ParamPOST(formdata);
-    //   axios
-    //     .post(func.UrlPOST("apiTransactionDetail"), param, {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     })
-    //     .then((response) => {
-    //       let feedback = response.data;
-    //       if (feedback.length > 0) {
-    //         if (feedback[0].status === true) {
-    //           this.trx_detail = feedback.map((item) => ({
-    //             ...item.transaction,
-    //             price: func.FormatCurrency(item.transaction.price),
-    //             status: func.FormatStatus(item.transaction.status),
-    //             date_start: this.FormatDate(
-    //               moment(item.transaction.date_start)
-    //             ),
-    //             date_end: this.FormatDate(moment(item.transaction.date_end)),
-    //             birthdate: func.FormatCustomBirthDate(
-    //               moment(item.transaction.birthdate)
-    //             ),
-    //           }));
-    //           this.dialog_detail = true;
-    //         } else {
-    //           this.DialogActive("Failed (1) : ", feedback[0].message);
-    //         }
-    //       } else {
-    //         this.DialogActive("Failed (2)");
-    //       }
-    //     })
-    //     .catch((e) => {
-    //       this.DialogActive("Failed (3) : ", e);
-    //     });
-    // },
-
+    FormatCurrency(amount) {
+      const formatter = new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        fraction: 2,
+      });
+      return formatter.format(amount);
+    },
     UpdatePage(page) {
       this.current_page = page;
     },
@@ -556,9 +457,16 @@ export default {
     FormatDate(date) {
       return func.FormatOutputDate(date, "simple", "api");
     },
+    FormatDateDetail(date) {
+      if (date && date.length > 10) {
+        return func.FormatOutputDate(date, "", "api") + date.slice(10);
+      } else {
+        return func.FormatOutputDate(date, "", "api");
+      }
+    },
   },
-  created() {
-    // this.GetTransaction("", "", "")
+  async created() {
+    await this.GetTrx("", "");
   },
   computed: {
     formatted_date() {

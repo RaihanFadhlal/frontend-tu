@@ -104,7 +104,7 @@ import FooterApp from "../../components/FooterApp.vue";
 import AccountDrawer from "./AccountDrawer.vue";
 import AccountMenu from "./AccountMenu.vue";
 import func from "../../function";
-// import axios from "axios";
+import axios from "../../axios";
 
 export default {
   name: "AccountApp",
@@ -152,11 +152,28 @@ export default {
     },
   }),
 
-  created() {
-    // this.id = func.UsersID()
-  },
-
   methods: {
+    async ChangePass() {
+      let formdata = {
+        old_password: this.old_pass,
+        new_password: this.new_pass,
+      };
+      try {
+        const response = await axios.post("/change-pass", {
+          ...formdata,
+        });
+        if (response.data.status) {
+          this.DialogActive("Berhasil!", "Password Berhasil Diganti");
+          setTimeout(() => {
+            location.Reload();
+          }, 2000);
+        } else {
+          this.DialogActive("Gagal Ganti Password");
+        }
+      } catch (error) {
+        this.DialogActive("Gagal Ganti Password", error);
+      }
+    },
     DialogActive(title, msg) {
       this.dialog_title = title;
       this.dialog_text = msg;
@@ -178,42 +195,8 @@ export default {
           "Konfirmasi Kata Sandi tidak cocok"
         );
       } else {
-        this.ChangePassword();
+        this.ChangePass();
       }
-    },
-    ChangePassword() {
-      let formdata = {
-        id: this.id,
-        old_pass: this.old_pass,
-        new_pass: this.new_pass,
-      };
-      let param = func.ParamPOST(formdata);
-      axios
-        .put(func.UrlPOST("apiSafariChangePass"), param, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          let feedback = response.data;
-          if (feedback.length > 0) {
-            if (feedback[0].status === true) {
-              this.DialogActive("Berhasil!", "Kata Sandi Berhasil Diganti");
-            } else {
-              this.DialogActive(
-                "Ganti Kata Sandi Gagal : ",
-                feedback[0].message
-              );
-              console.log("1");
-            }
-          } else {
-            this.DialogActive("Ganti Kata Sandi Gagal");
-          }
-        })
-        .catch((e) => {
-          this.DialogActive("Ganti Kata Sandi Gagal : ", e);
-          console.log(e);
-        });
     },
     UpdateRail(value) {
       this.rail = value;

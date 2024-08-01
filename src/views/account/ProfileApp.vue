@@ -1,6 +1,6 @@
 <template>
   <v-app class="body">
-    <Navbar/>
+    <Navbar />
     <v-main>
       <v-container class="acc-container">
         <AccountMenu />
@@ -79,23 +79,15 @@
                     <v-row>
                       <v-col cols="12" sm="6">
                         <v-text-field
-                          v-model="profile.firstname"
-                          label="Nama Depan"
+                          v-model="profile.fullname"
+                          label="Nama Lengkap"
                           prepend-inner-icon="mdi-badge-account"
                           :rules="[OnlyAlphabet]"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6">
                         <v-text-field
-                          v-model="profile.lastname"
-                          label="Nama Belakang"
-                          prepend-inner-icon="mdi-badge-account"
-                          :rules="[OnlyAlphabet]"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          v-model="profile.birth_place"
+                          v-model="profile.birthplace"
                           label="Tempat Lahir"
                           prepend-inner-icon="mdi-map-marker"
                         ></v-text-field>
@@ -125,7 +117,7 @@
                               (value) =>
                                 UpdateDate(
                                   'profile',
-                                  'birth_date',
+                                  'birthdate',
                                   'date_picker',
                                   value
                                 )
@@ -154,17 +146,9 @@
                       <v-col cols="12" sm="6">
                         <v-text-field
                           readonly
-                          v-model="profile.email"
+                          v-model="email"
                           label="Email"
                           prepend-inner-icon="mdi-email"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          readonly
-                          v-model="id"
-                          label="ID"
-                          prepend-inner-icon="mdi-card-account-details"
                         ></v-text-field>
                       </v-col>
                       <v-col>
@@ -175,8 +159,12 @@
                         ></v-text-field>
                       </v-col>
                     </v-row>
-                    <v-row  justify="center mb-5">
-                      <v-btn prepend-icon="mdi-pen" color="orange-lighten-2" @click="SubmitUpdate">
+                    <v-row justify="center mb-5">
+                      <v-btn
+                        prepend-icon="mdi-pen"
+                        color="orange-lighten-2"
+                        @click="UpdateProfile"
+                      >
                         <span class="body">Ubah Data Diri</span>
                       </v-btn></v-row
                     >
@@ -188,21 +176,21 @@
         </v-card>
         <!-- Dialog -->
         <v-dialog persistent v-model="dialog" max-width="400px">
-        <v-card class="body">
-          <v-card-title class="font-weight-bold mt-2"
-            ><v-icon class="mr-2 mb-1" left :style="{ color: icon_color }">{{
-              dialog_icon
-            }}</v-icon
-            >{{ dialog_title }}</v-card-title
-          >
-          <v-card-text class="pt-1 ml-4" style="font-size: large;">
-            {{ dialog_text }}
-          </v-card-text>
-          <v-card-actions class="justify-end">
-            <v-btn @click="CloseDialog">Tutup</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+          <v-card class="body">
+            <v-card-title class="font-weight-bold mt-2"
+              ><v-icon class="mr-2 mb-1" left :style="{ color: icon_color }">{{
+                dialog_icon
+              }}</v-icon
+              >{{ dialog_title }}</v-card-title
+            >
+            <v-card-text class="pt-1 ml-4" style="font-size: large">
+              {{ dialog_text }}
+            </v-card-text>
+            <v-card-actions class="justify-end">
+              <v-btn @click="CloseDialog">Tutup</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-container>
     </v-main>
     <FooterApp />
@@ -215,8 +203,7 @@ import FooterApp from "../../components/FooterApp.vue";
 import AccountDrawer from "./AccountDrawer.vue";
 import AccountMenu from "./AccountMenu.vue";
 import func from "../../function";
-// import axios from "axios";
-// import moment from "moment";
+import axios from "../../axios";
 
 export default {
   name: "ProfileApp",
@@ -227,7 +214,6 @@ export default {
     AccountMenu,
   },
   data: () => ({
-    id: "",
     chip1: true,
 
     //dialog
@@ -244,17 +230,17 @@ export default {
 
     //form data
     profile: {
-      firstname: "",
-      lastname: "",
-      birth_place: "",
-      birth_date: "",
+      name: "",
+      birthplace: "",
+      birthdate: "",
       gender: null,
       phone: "",
-      email: "",
       address: "",
-      avatar: "",
       avatar_url: "",
+      avatar: "",
     },
+    avatar: "",
+    email: "",
     genders: ["Laki-laki", "Perempuan"],
     date_picker: false,
     selected_date: null,
@@ -265,19 +251,78 @@ export default {
   }),
 
   created() {
-    // this.profile.email = func.UsersEmail()
-    // this.id = func.UsersID()
-    // this.GetDetails(this.id)
+    this.GetProfile();
   },
 
   computed: {
     formatted_date() {
       return this.selected_date
-        ? func.FormatOutputDate(this.selected_date,'simple')
+        ? func.FormatOutputDate(this.selected_date, "simple")
         : "";
     },
   },
   methods: {
+    async GetProfile() {
+      try {
+        const response = await axios.get("/profile");
+        if (response.data.status) {
+          this.profile.fullname = response.data.data.name;
+          this.profile.gender = func.GenderFormat(response.data.data.gender);
+          this.profile.phone = response.data.data.phone;
+          this.email = response.data.data.email;
+          this.profile.birthplace = response.data.data.birthplace;
+          this.profile.birthdate = response.data.data.birthdate;
+          this.profile.avatar_url = response.data.data.image;
+          this.profile.avatar = response.data.data.image_name;
+          this.profile.address = response.data.data.address;
+
+          if (
+            response.data.data.birthdate !== undefined &&
+            response.data.data.birthdate !== ""
+          )
+            this.selected_date = new Date(response.data.data.birthdate);
+        } else {
+          this.DialogActive("Gagal Mendapat Data Dirii");
+        }
+      } catch (error) {
+        this.DialogActive("Gagal Mendapat Data Diri", error);
+      }
+    },
+    async UpdateProfile() {
+      const gender = func.GenderFormat(this.profile.gender);
+      var avatarurl;
+      if (this.profile.avatar instanceof File) {
+        avatarurl = this.profile.avatar_url.replace(/^.+?base64,/, "");
+      } else if (this.profile.avatar_url == "delete") {
+        avatarurl = "delete";
+      } else {
+        avatarurl = "";
+      }
+      let formdata = {
+        name: this.profile.fullname,
+        gender: gender,
+        phone: this.profile.phone,
+        birthplace: this.profile.birthplace,
+        birthdate: this.profile.birthdate,
+        address: this.profile.address,
+        image: avatarurl,
+      };
+      try {
+        const response = await axios.put("/profile", {
+          ...formdata,
+        });
+        if (response.data.status) {
+          this.DialogActive("Berhasil!", "Data Diri Berhasil Diupdate");
+          setTimeout(() => {
+            location.Reload();
+          }, 2000);
+        } else {
+          this.DialogActive("Gagal Update Data");
+        }
+      } catch (error) {
+        this.DialogActive("Gagal Update Data", error);
+      }
+    },
     DialogActive(title, msg) {
       this.dialog_title = title;
       this.dialog_text = msg;
@@ -296,57 +341,6 @@ export default {
       } else {
         location.reload();
       }
-    },
-    GetDetails(usersId) {
-      let formdata = {
-        id: usersId,
-      };
-      let param = func.ParamPOST(formdata);
-      axios
-        .post(func.UrlPOST("apiSafariProfile"), param, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          let feedback = response.data;
-          if (feedback.length > 0) {
-            if (feedback[0].status === true) {
-              let fullname = feedback[0].data.name;
-              const nameparts = fullname.split(" ");
-              this.profile.firstname = nameparts[0];
-              this.profile.lastname = nameparts.slice(1).join(" ");
-
-              this.profile.phone = feedback[0].data.phone;
-              this.profile.birth_place = feedback[0].data.birthplace;
-              this.profile.birth_date =
-                feedback[0].data.birthdate == " "
-                  ? "2000-01-01"
-                  : feedback[0].data.birthdate;
-              this.profile.address = feedback[0].data.address;
-
-              if (feedback[0].data.gender === "M") {
-                this.profile.gender = "Laki-laki";
-              } else if (feedback[0].data.gender === "F") {
-                this.profile.gender = "Perempuan";
-              } else {
-                this.profile.gender = " ";
-              }
-
-              this.profile.avatar = feedback[0].data.avatar;
-              this.profile.avatar_url = feedback[0].data.avatar_url;
-            } else {
-              this.DialogActive("Gagal memuat detail : ", feedback[0].message);
-              console.log("1");
-            }
-          } else {
-            this.DialogActive("Gagal memuat detail");
-          }
-        })
-        .catch((e) => {
-          this.DialogActive("Gagal memuat detail : ", e);
-          console.log(e);
-        });
     },
     SubmitUpdate() {
       if (!this.$refs.form.validate()) {
@@ -370,57 +364,15 @@ export default {
         this.chip1 = true;
       }
     },
-    UpdateProfile() {
-      const fullname = this.profile.firstname + " " + this.profile.lastname;
-      const gender = this.profile.gender === "Laki-laki" ? "M" : "F";
-      var avatarurl;
-      if (this.profile.avatar instanceof File) {
-        avatarurl = this.profile.avatar_url.replace(/^.+?base64,/, "");
-      } else if (this.profile.avatar_url == "delete") {
-        avatarurl = "delete";
-      } else {
-        avatarurl = "";
-      }
-      let formdata = {
-        id: this.id,
-        name: fullname,
-        gender: gender,
-        phone: this.profile.phone,
-        birthplace: this.profile.birth_place,
-        birthdate: this.profile.birth_date,
-        address: this.profile.address,
-        avatar: avatarurl,
-      };
-      let param = func.ParamPOST(formdata);
-      axios
-        .put(func.UrlPOST("apiSafariProfile"), param, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          let feedback = response.data;
-          if (feedback.length > 0) {
-            if (feedback[0].status === true) {
-              this.DialogActive("Berhasil!", "Data profil berhasil diupdate");
-            } else {
-              this.DialogActive("Gagal update profile : ", feedback[0].message);
-            }
-          } else {
-            this.DialogActive("Gagal update profile");
-          }
-        })
-        .catch((e) => {
-          this.DialogActive("Gagal update profile3 : ", e);
-          console.log(e);
-        });
-    },
     UpdateDate(formKey, dateKey, menuKey, value) {
       this[formKey][dateKey] = func.FormatDate(value);
       this[menuKey] = false;
     },
     UpdateRail(value) {
       this.rail = value;
+    },
+    FormatDate(date) {
+      return func.FormatOutputDate(date, "simple", "api");
     },
   },
 };

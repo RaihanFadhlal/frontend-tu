@@ -168,7 +168,6 @@ export default {
           "Login Gagal",
           "Kredensial salah atau server bermasalah"
         );
-        console.log(e);
       }
     },
     ValidateForm() {
@@ -212,29 +211,26 @@ export default {
     }
   },
   mounted() {
-    //clouds animation
     const cloud = this.$refs.cloud;
     const screenwidth = window.innerWidth;
 
     gsap.to(cloud, {
       x: screenwidth,
       ease: Power0.easeNone,
-      duration: 8,
+      duration: 10,
       onComplete: () => {
-        gsap.set(cloud, { x: -cloud.clientWidth });
+        gsap.set(cloud, { x: '-700px' });
         gsap.to(cloud, {
           x: screenwidth,
           ease: Power0.easeNone,
-          duration: 10,
+          duration: 12,
           repeat: -1,
         });
       },
     });
 
-    //logo animation
     gsap.fromTo(this.$refs.logo, { y: "-100%" }, { y: "0%", duration: 2 });
 
-    // Alert animation
     if (this.show_alert) {
       gsap.fromTo(this.$refs.alert, { x: -300 }, { x: 0, duration: 2 });
       setTimeout(() => {

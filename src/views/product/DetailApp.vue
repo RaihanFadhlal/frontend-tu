@@ -34,9 +34,7 @@
       <v-container class="ml-sm-10">
         <v-row>
           <v-col cols="12" md="6" lg="3">
-            <v-img
-              :src="image"
-            ></v-img>
+            <v-img :src="image"></v-img>
             <v-dialog width="600" v-model="dialog_tnc">
               <template v-slot:activator="{ props: activatorProps }">
                 <v-row justify="center">
@@ -44,9 +42,9 @@
                     color="#3EC2D1"
                     dark
                     v-bind="activatorProps"
-                    class="hidden-xs mt-5 rounded-lg text-white"
+                    class="hidden-sm-and-down mt-5 rounded-lg text-white"
                   >
-                    Syarat dan Ketentuan
+                    <span class="body"> Syarat dan Ketentuan</span>
                   </v-btn>
                 </v-row>
               </template>
@@ -69,11 +67,17 @@
 
                     Syarat dan Ketentuan
                   </v-card-title>
-                  <v-card-text
-                    v-html="terms"
-                    class="mt-2 grey--text text--darken-3"
-                    style="font-size: medium"
-                  ></v-card-text>
+                  <v-card-text>
+                    <v-row
+                      v-for="(term, index) in terms"
+                      :key="index"
+                      class="d-flex"
+                    >
+                      <v-col cols="1"> - </v-col>
+                      <v-col cols="10"> {{ term }} </v-col>
+                    </v-row></v-card-text
+                  >
+
                   <v-divider></v-divider>
                   <v-card-actions>
                     <v-spacer></v-spacer>
@@ -159,7 +163,8 @@
                     rounded
                     color="#F57C00"
                     @click="RequestProduct"
-                    >Daftar
+                  >
+                    <span class="body"> Daftar</span>
                   </v-btn>
                 </v-row>
               </v-card-text>
@@ -168,15 +173,16 @@
             <v-dialog persistent v-model="dialog_login" max-width="400px">
               <v-card class="body">
                 <v-card-title class="font-weight-bold mt-2"
-                  ><v-icon class="mr-2 mb-1" left color="red">mdi-alert-circle-outline</v-icon
+                  ><v-icon class="mr-2 mb-1" left color="red"
+                    >mdi-alert-circle-outline</v-icon
                   >Belum Login</v-card-title
                 >
-                <v-card-text class="pt-1 ml-4" style="font-size: large;"
+                <v-card-text class="pt-1 ml-4" style="font-size: large"
                   >Login untuk mendaftar produk!
                 </v-card-text>
                 <v-card-actions class="justify-end">
                   <router-link to="/login"
-                    ><v-btn  class="mr-2">Login</v-btn></router-link
+                    ><v-btn class="mr-2">Login</v-btn></router-link
                   >
                   <v-btn @click="dialog_login = false">Batal</v-btn>
                 </v-card-actions>
@@ -190,11 +196,14 @@
             <div class="cost mt-2 mb-2 ml-3">Manfaat</div>
             <v-expansion-panels focusable class="ml-3">
               <v-expansion-panel v-for="(item, i) in benefits" :key="i">
-                <v-expansion-panel-title class="text-blue">
-                  {{ item.name }}
+                <v-expansion-panel-title
+                  class="text-blue"
+                  style="font-weight: 550"
+                >
+                  {{ item.desc }}
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  <v-table class="body">
+                  <v-table>
                     <thead>
                       <tr>
                         <th style="font-size: small">Jenis Manfaat</th>
@@ -206,7 +215,7 @@
                     </thead>
                     <tbody>
                       <tr v-for="item in item.detail" :key="item.type">
-                        <td>{{ item.type }}</td>
+                        <td>{{ item.detail }}</td>
                         <td>{{ item.basic }}</td>
                         <td>{{ item.gold }}</td>
                         <td>{{ item.platinum }}</td>
@@ -226,7 +235,7 @@
                     v-bind="activatorProps"
                     class="hidden-sm-and-up mt-10 rounded-lg"
                   >
-                    Syarat dan Ketentuan
+                    <span class="body"> Syarat dan Ketentuan</span>
                   </v-btn>
                 </v-row>
               </template>
@@ -242,9 +251,7 @@
                     </v-sheet>
                     Syarat dan Ketentuan
                   </v-card-title>
-                  <v-card-text
-                    v-html="terms"
-                  ></v-card-text>
+                  <v-card-text v-html="terms"></v-card-text>
                   <v-divider></v-divider>
                   <v-card-actions>
                     <v-spacer></v-spacer>
@@ -279,11 +286,11 @@
 </template>
 
 <script>
-import func from "../../function";
 import Navbar from "../../components/Navbar.vue";
 import FooterApp from "../../components/FooterApp.vue";
 import SearchProduct from "./SearchProduct.vue";
 import axios from "../../axios";
+import { mapGetters, mapMutations } from "vuex";
 
 export default {
   name: "DetailApp",
@@ -305,7 +312,7 @@ export default {
         capacity: "1",
         type: "Basic",
       },
-      contribution: ["Basic", "Gold", "Platinum", "Titanium"],
+      contribution: [],
       path: [
         {
           title: "Beranda",
@@ -342,217 +349,52 @@ export default {
       desc: "",
       image: "",
       tab: null,
-      table: {
-        Basic: [
-          {
-            day_min: 1,
-            day_max: 10,
-            price: 60000,
-          },
-          {
-            day_min: 11,
-            day_max: 15,
-            price: 65000,
-          },
-          {
-            day_min: 16,
-            day_max: 20,
-            price: 70000,
-          },
-          {
-            day_min: 21,
-            day_max: 25,
-            price: 75000,
-          },
-          {
-            day_min: 26,
-            day_max: 30,
-            price: 85000,
-          },
-          {
-            day_min: 31,
-            day_max: 40,
-            price: 100000,
-          },
-        ],
-        Gold: [
-          {
-            day_min: 1,
-            day_max: 10,
-            price: 85000,
-          },
-          {
-            day_min: 11,
-            day_max: 15,
-            price: 90000,
-          },
-          {
-            day_min: 16,
-            day_max: 20,
-            price: 95000,
-          },
-          {
-            day_min: 21,
-            day_max: 25,
-            price: 100000,
-          },
-          {
-            day_min: 26,
-            day_max: 30,
-            price: 110000,
-          },
-          {
-            day_min: 31,
-            day_max: 40,
-            price: 125000,
-          },
-        ],
-        Platinum: [
-          {
-            day_min: 1,
-            day_max: 10,
-            price: 115000,
-          },
-          {
-            day_min: 11,
-            day_max: 15,
-            price: 120000,
-          },
-          {
-            day_min: 16,
-            day_max: 20,
-            price: 125000,
-          },
-          {
-            day_min: 21,
-            day_max: 25,
-            price: 130000,
-          },
-          {
-            day_min: 26,
-            day_max: 30,
-            price: 140000,
-          },
-          {
-            day_min: 31,
-            day_max: 40,
-            price: 155000,
-          },
-        ],
-        Titanium: [
-          {
-            day_min: 1,
-            day_max: 10,
-            price: 140000,
-          },
-          {
-            day_min: 11,
-            day_max: 15,
-            price: 150000,
-          },
-          {
-            day_min: 16,
-            day_max: 20,
-            price: 160000,
-          },
-          {
-            day_min: 21,
-            day_max: 25,
-            price: 170000,
-          },
-          {
-            day_min: 26,
-            day_max: 30,
-            price: 185000,
-          },
-          {
-            day_min: 31,
-            day_max: 40,
-            price: 200000,
-          },
-        ],
-      },
+      table: {},
       selected_type: "Basic",
-      benefits: [
-        {
-          name: "Biaya Perawatan Medis",
-          detail: [
-            {
-              type: "Biaya perawatan medis di luar negeri (akibat sakit/kecelakaan) - reimburstment",
-              basic: "Maksimum 100.000.000",
-              gold: "Maksimum 100.000.000",
-              platinum: "Maksimum 200.000.000",
-              titanium: "Maksimum 300.000.000",
-            },
-            {
-              type: "Biaya perawatan medis di luar negeri karena penyakit khusus (preexisting)- reimburstment",
-              basic: "Maksimum 10.000.000",
-              gold: "Maksimum 10.000.000",
-              platinum: "Maksimum 10.000.000",
-              titanium: "Maksimum 10.000.000",
-            },
-            {
-              type: "Biaya perawatan medis lanjutan di Indonesia",
-              basic: "Maksimum 2.000.000",
-              gold: "Maksimum 2.000.000",
-              platinum: "Maksimum 2.000.000",
-              titanium: "Maksimum 2.000.000",
-            },
-          ],
-        },
-        {
-          name: "Evakuasi / pemulangan medis dan jenazah",
-          detail: [
-            {
-              type: "Evakuasi medis darurat",
-              basic: "Maksimum 1.000.000.000",
-              gold: "Maksimum 10.000.000.000",
-              platinum: "Maksimum 10.000.000.000",
-              titanium: "Maksimum 10.000.000.000",
-            },
-            {
-              type: "Pemulangan medis darurat",
-              basic: "Maksimum 1.000.000.000",
-              gold: "Maksimum 10.000.000.000",
-              platinum: "Maksimum 10.000.000.000",
-              titanium: "Maksimum 10.000.000.000",
-            },
-            {
-              type: "Pemulangan Jenazah",
-              basic: "Maksimum 1.000.000.000",
-              gold: "Maksimum 10.000.000.000",
-              platinum: "Maksimum 10.000.000.000",
-              titanium: "Maksimum 10.000.000.000",
-            },
-          ],
-        },
-        {
-          name: "Kecelakaan",
-          detail: [
-            {
-              type: "Santunan meninggal dunia karena kecelakaan",
-              basic: "50.000.000",
-              gold: "50.000.000",
-              platinum: "100.000.000",
-              titanium: "150.000.000",
-            },
-            {
-              type: "Santunan cacat tetap karena kecelakaan",
-              basic: "Maksimum 50.000.000",
-              gold: "Maksimum 50.000.000",
-              platinum: "Maksimum 100.000.000",
-              titanium: "Maksimum 150.000.000",
-            },
-          ],
-        },
-      ],
-      terms: [
-        "<ul><li>Usia peserta tidak dibatasi dan tidak sedang dirawat inap di rumah sakit atau sejenisnya</li><li>Masa berlaku asuransi 1-40 hari sesuai dengan periode kontribusi yang dibayarkan. Dimulai sejak tanggal peserta direncanakan meninggalkan Indonesia.</li><li>Biaya Administrasi berupa Biaya Polis dan Materai Rp 50.000,-</li><li>Laporan klaim harus sudah pengelola terima selambat-lambatnya 30 hari kalender sejak kejadian</li></ul>",
-      ],
+      benefits: [],
+      terms: [],
+      countries: [],
     };
   },
 
   methods: {
+    ...mapMutations(["setProduct"]),
+    async GetDetails(id) {
+      try {
+        const response = await axios.get("/detail", {
+          params: { id: id },
+        });
+        if (response.data.status) {
+          this.name = response.data.data.name;
+          this.desc = response.data.data.desc;
+          this.image = response.data.data.image;
+          this.table = this.ConvertTableKeys(response.data.data.price);
+          this.contribution = response.data.data.type;
+          this.benefits = response.data.data.benefits;
+          this.countries = response.data.data.countries.split(" , ");
+          this.terms = response.data.data.tnc
+            .split("*")
+            .map((term) => term.trim())
+            .filter((term) => term);
+          this.setProduct({
+            code: id.slice(0, -2),
+            name: response.data.data.name,
+          });
+        } else {
+          console.error("Error retrieving details:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error retrieving details:", error);
+      }
+    },
+    ConvertTableKeys(priceData) {
+      const convertedTable = {};
+      Object.keys(priceData).forEach((key) => {
+        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+        convertedTable[capitalizedKey] = priceData[key];
+      });
+      return convertedTable;
+    },
     UploadIcon(path, name) {
       return new URL(path + name, import.meta.url).href;
     },
@@ -568,54 +410,40 @@ export default {
       return (isnumber && iszero) || "Input data salah";
     },
     RequestProduct() {
-      if (this.check_login) {
-        const formdata = JSON.parse(localStorage.getItem("form_data")) || {};
+      if (this.isAuthenticated) {
+        const formdata = JSON.parse(localStorage.getItem("form_safari")) || {};
         formdata.type = this.form_data.type;
         formdata.capacity = this.form_data.capacity;
-        localStorage.setItem("form_data", JSON.stringify(formdata));
-        localStorage.setItem("array_ctr", JSON.stringify(this.contribution));
-        localStorage.setItem("array_dst", JSON.stringify(this.destination));
+        localStorage.setItem("form_safari", JSON.stringify(formdata));
+        localStorage.setItem("contribution", JSON.stringify(this.contribution));
+        localStorage.setItem("countries", JSON.stringify(this.countries));
         this.$router.push("/request");
       } else {
         this.dialog_login = true;
       }
     },
-    async GetDetails(id) {
-      try {
-        const response = await axios.get("/detail", {
-          params: {
-            id: id,
-          },
-        });
-        if (response.data.status) {
-          this.name = response.data.data.name
-          this.desc = response.data.data.desc
-          this.image = response.data.data.image
-        } else {
-          console.error("Error retrieving countries:", response.data.message);
-        }
-      } catch (error) {
-        console.error("Error retrieving countries:", error);
-      }
-    },
+  },
+
+  computed: {
+    ...mapGetters(["isAuthenticated"]),
   },
 
   async created() {
-      const param = this.$route.query.id
-      await this.GetDetails(param)
-      if (!localStorage.getItem("form_data")) {
-        localStorage.setItem("form_data", JSON.stringify(this.form_data))
-      }
-      const form = JSON.parse(localStorage.getItem("form_data")) || {}
-      if (form.capacity >= 1) {
-        this.form_data.capacity = form.capacity
-        this.form_data.from = form.from
-        this.form_data.destination = form.destination
-        this.form_data.date_start = form.date_start
-        this.form_data.date_end = form.date_end
-      } else {
-        this.form_data.capacity = 1
-      }
+    const param = this.$route.query.id;
+    await this.GetDetails(param);
+    if (!localStorage.getItem("form_safari")) {
+      localStorage.setItem("form_safari", JSON.stringify(this.form_data));
+    }
+    const form = JSON.parse(localStorage.getItem("form_safari")) || {};
+    if (form.capacity >= 1) {
+      this.form_data.capacity = form.capacity;
+      this.form_data.from = form.from;
+      this.form_data.destination = form.destination;
+      this.form_data.date_start = form.date_start;
+      this.form_data.date_end = form.date_end;
+    } else {
+      this.form_data.capacity = 1;
+    }
   },
 };
 </script>
@@ -659,7 +487,8 @@ export default {
   flex: 0 0 12.5%;
   max-width: 12.5%;
 }
-.v-dialog > .v-overlay__content > .v-card > .v-card-text, .v-dialog > .v-overlay__content > form > .v-card > .v-card-text {
-    padding: 12px 40px 20px;
+.v-dialog > .v-overlay__content > .v-card > .v-card-text,
+.v-dialog > .v-overlay__content > form > .v-card > .v-card-text {
+  padding: 12px 40px 20px;
 }
 </style>
