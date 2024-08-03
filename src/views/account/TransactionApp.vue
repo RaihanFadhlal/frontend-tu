@@ -87,10 +87,7 @@
                 </v-dialog>
                 <v-card flat class="mt-3">
                   <div v-if="transactions.length === 0" class="text-center">
-                    <v-progress-circular
-                      indeterminate
-                      color="#3EC2D1"
-                    ></v-progress-circular>
+                    Belum ada transaksi
                   </div>
                   <v-row>
                     <v-col
@@ -308,19 +305,7 @@ export default {
     rail: false,
     dialog_trx: false,
     dialog_detail: false,
-    transactions: [
-      {
-        no_va: "PTSUHK001",
-        product: "Takaful Safari Haji dan Umroh",
-        trx_id: "TRXTSUHK001",
-        price: "Rp 100.000,-",
-        date: "2024-03-10",
-        due: "2024-03-15",
-        status: "Menunggu Pembayaran",
-        image:
-          "https://www.madaninews.id/wp-content/uploads/2019/01/photo_post_181_0.jpg",
-      },
-    ],
+    transactions: [],
     dialog_err: false,
     dialog_text: "",
     dialog_title: "",
@@ -412,7 +397,9 @@ export default {
         });
         if (response.data.status) {
           if (response.data.data == null) {
-            this.DialogActive("Belum ada polis yang terdaftar!");
+            if (name !== "" && status !== "") {
+              this.DialogActive("Belum ada polis yang terdaftar!");
+            }
             this.dialog_trx = false;
           } else {
             this.transactions = response.data.data;

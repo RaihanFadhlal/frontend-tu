@@ -165,8 +165,7 @@ export default {
         }
       } catch (e) {
         this.DialogActive(
-          "Login Gagal",
-          "Kredensial salah atau server bermasalah"
+          "Login Gagal",e
         );
       }
     },

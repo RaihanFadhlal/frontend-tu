@@ -18,7 +18,7 @@
                   <v-icon class="ma-4" color="grey-darken-1"
                     >mdi-shield-account</v-icon
                   >
-                  <span style="color: #212121">Riwayat Klaim</span>
+                  <span style="color: #212121">Takaful Safari</span>
                 </div>
                 <v-dialog v-model="dialog_claim" persistent max-width="700">
                   <template v-slot:activator="{ props }">
@@ -87,7 +87,15 @@
                           </v-col>
                         </v-row>
                         <v-row justify="center">
-                          <v-btn color="#F57C00" @click="GetClaims(this.form_data.product, this.form_data.date_report)">
+                          <v-btn
+                            color="#F57C00"
+                            @click="
+                              GetClaims(
+                                this.form_data.product,
+                                this.form_data.date_report
+                              )
+                            "
+                          >
                             <span class="body">Cari</span>
                           </v-btn>
                         </v-row>
@@ -103,10 +111,7 @@
                 </v-dialog>
                 <v-card flat class="mt-3">
                   <div v-if="claims.length === 0" class="text-center">
-                    <v-progress-circular
-                      indeterminate
-                      color="#3EC2D1"
-                    ></v-progress-circular>
+                    Belum ada klaim
                   </div>
                   <v-row>
                     <v-col
@@ -124,7 +129,10 @@
                               sm="3"
                               md="2"
                             >
-                              <v-img class="my-auto rounded" :src="claim.image">
+                              <v-img
+                                class="my-auto rounded"
+                                :src="claim.evidence"
+                              >
                               </v-img>
                             </v-col>
                             <v-col cols="12" sm="9" md="10" class="pb-0">
@@ -143,7 +151,7 @@
                                     {{ claim.claim_id }}
                                   </div>
                                   <div class="body mb-2" style="color: black">
-                                    {{ 'Detail : ' + claim.detail }}
+                                    {{ "Detail : " + claim.detail }}
                                   </div>
                                 </v-col>
                                 <v-col
@@ -172,6 +180,7 @@
                                   border: 1px solid;
                                   background-color: white;
                                 "
+                                @click="GetClaimDetail(claim.claim_id, 'safari')"
                                 >{{ claim.status }}
                               </v-btn>
                             </v-col>
@@ -199,7 +208,11 @@
                   >
                   <span style="color: #212121">Takaful Abror</span>
                 </div>
-                <v-dialog v-model="dialog_claim_abror" persistent max-width="700">
+                <v-dialog
+                  v-model="dialog_claim_abror"
+                  persistent
+                  max-width="700"
+                >
                   <template v-slot:activator="{ props }">
                     <v-btn v-bind="props" prepend-icon="mdi-shield-search">
                       <span class="body">Cari Klaim</span>
@@ -266,7 +279,15 @@
                           </v-col>
                         </v-row>
                         <v-row justify="center">
-                          <v-btn color="#F57C00" @click="GetClaimsAbror(form_data_abror.car_type, form_data_abror.date_report)">
+                          <v-btn
+                            color="#F57C00"
+                            @click="
+                              GetClaimsAbror(
+                                form_data_abror.car_type,
+                                form_data_abror.date_report
+                              )
+                            "
+                          >
                             <span class="body">Cari</span>
                           </v-btn>
                         </v-row>
@@ -274,14 +295,18 @@
                     </v-card-text>
                     <v-card-actions class="pt-0">
                       <v-spacer></v-spacer>
-                      <v-btn color="#001F48" @click="dialog_claim_abror = false">
+                      <v-btn
+                        color="#001F48"
+                        @click="dialog_claim_abror = false"
+                      >
                         <span class="body">Tutup</span>
                       </v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
                 <v-card flat class="mt-3">
-                  <div v-if="claims_abror.length === 0" class="text-center">Belum Ada Klaim
+                  <div v-if="claims_abror.length === 0" class="text-center">
+                    Belum Ada Klaim
                   </div>
                   <v-row>
                     <v-col
@@ -299,7 +324,10 @@
                               sm="3"
                               md="2"
                             >
-                              <v-img class="my-auto rounded" :src="claim.image">
+                              <v-img
+                                class="my-auto rounded"
+                                :src="claim.evidence"
+                              >
                               </v-img>
                             </v-col>
                             <v-col cols="12" sm="9" md="10" class="pb-0">
@@ -318,7 +346,7 @@
                                     {{ claim.claim_id }}
                                   </div>
                                   <div class="body mb-2" style="color: black">
-                                    {{ 'Detail : ' + claim.detail }}
+                                    {{ "Detail : " + claim.detail }}
                                   </div>
                                 </v-col>
                                 <v-col
@@ -347,6 +375,7 @@
                                   border: 1px solid;
                                   background-color: white;
                                 "
+                                @click="GetClaimDetail(claim.claim_id, 'abror')"
                                 >{{ claim.status }}
                               </v-btn>
                             </v-col>
@@ -383,6 +412,27 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <v-dialog v-model="dialog_result" max-width="600px">
+          <v-card class="body">
+            <v-card-title class="font-weight-bold mt-2"
+              ><v-icon class="mr-2 mb-1" left :color="dr_color"
+                >mdi-alert-circle-outline</v-icon
+              >{{ "Klaim " + dr_status }}</v-card-title
+            >
+            <v-card-text class="pt-1 ml-8" style="font-size: large">
+              {{ "Pesan : " + dr_msg }}
+            </v-card-text>
+            <v-card-text class="pt-1 ml-8" style="font-size: large">
+              {{ "Biaya tercover : " + dr_cover }}
+            </v-card-text>
+            <v-card-text class="pt-1 ml-8" style="font-size: large">
+              <v-img :src="dr_img"> </v-img>
+            </v-card-text>
+            <v-card-actions class="justify-end">
+              <v-btn @click="dialog_result = false">Tutup</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-container>
     </v-main>
     <FooterApp />
@@ -414,6 +464,13 @@ export default {
     dialog_err: false,
     dialog_text: "",
     dialog_title: "",
+
+    dialog_result: false,
+    dr_status: "-",
+    dr_msg: "-",
+    dr_cover: "-",
+    dr_color: "-",
+    dr_img: null,
 
     dialog_claim: false,
     date_menu: false,
@@ -457,7 +514,9 @@ export default {
         });
         if (response.data.status) {
           if (response.data.data == null) {
+            if (name !== "" && date !== "") {
             this.DialogActive("Belum ada klaim yang terdaftar!");
+            }
             this.dialog_claim = false;
           } else {
             this.claims = response.data.data;
@@ -478,7 +537,9 @@ export default {
         });
         if (response.data.status) {
           if (response.data.data == null) {
+            if (car !== "" && date !== "") {
             this.DialogActive("Belum ada klaim yang terdaftar!");
+            }
             this.dialog_claim_abror = false;
           } else {
             this.claims_abror = response.data.data;
@@ -505,6 +566,21 @@ export default {
         console.error("Error retrieving countries:", error);
       }
     },
+    async GetClaimDetail(id, types) {
+      try {
+        const response = await axios.post("/get-claim-detail", {
+          claim_id: id,
+          type: types,
+        });
+        if (response.data.status) {
+          this.DialogResult(response.data.data.status, response.data.data.message, response.data.data.cover_cost, response.data.data.pay_proof)
+        } else {
+          this.DialogActive("Gagal mendapat detail")
+        }
+      } catch (error) {
+        console.error("Error :", error);
+      }
+    },
     Reload() {
       location.reload();
     },
@@ -520,6 +596,14 @@ export default {
       this.dialog_title = title;
       this.dialog_text = msg;
       this.dialog_err = true;
+    },
+    DialogResult(title, msg, cover, img) {
+      this.dr_status =  title
+      this.dr_msg = msg
+      this.dr_cover = cover
+      this.dr_img = img
+      this.dr_color = "green"
+      this.dialog_result = true
     },
     UpdatePage(page) {
       this.current_page = page;

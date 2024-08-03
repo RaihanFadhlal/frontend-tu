@@ -1,7 +1,4 @@
-// store.js
-import {
-  createStore
-} from 'vuex';
+import { createStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import axios from './axios';
 
@@ -9,13 +6,13 @@ const store = createStore({
   state: {
     accessToken: localStorage.getItem('accessToken') || '',
     isAuthenticated: !!localStorage.getItem('accessToken'),
-    productCode: "",
-    productName: "",
-    abrorCont: "",
-    carBrand: "",
-    carType: "",
+    productCode: '',
+    productName: '',
+    abrorCont: '',
+    carBrand: '',
+    carType: '',
     cars: [],
-    brands: [],
+    brands: []
   },
   mutations: {
     setAccessToken(state, token) {
@@ -30,22 +27,20 @@ const store = createStore({
       state.isAuthenticated = false;
       localStorage.removeItem('accessToken');
     },
-    setProduct(state,{code, name}) {
-      state.productCode = code
-      state.productName = name
+    setProduct(state, { code, name }) {
+      state.productCode = code;
+      state.productName = name;
     },
-    setAbror(state,{cont, brand, type, cars, brands}) {
-      state.abrorCont = cont
-      state.carBrand = brand
-      state.carType = type
-      state.cars = cars
-      state.brands = brands
+    setAbror(state, { cont, brand, type, cars, brands }) {
+      state.abrorCont = cont;
+      state.carBrand = brand;
+      state.carType = type;
+      state.cars = cars;
+      state.brands = brands;
     }
   },
   actions: {
-    async login({
-      commit
-    }, formData) {
+    async login({ commit }, formData) {
       try {
         const response = await axios.post('/login', formData);
         if (response.data.status) {
@@ -61,15 +56,10 @@ const store = createStore({
         commit('setAccessToken', '');
         throw error;
       }
-    },
-    async refreshToken({
-      commit,
-      state
-    }) {
+    },    
+    async refreshToken({ commit }) {
       try {
-        const response = await axios.post('/refresh-token', {}, {
-          withCredentials: true
-        });
+        const response = await axios.post('/refresh-token', {}, { withCredentials: true });
         commit('setAccessToken', response.data.access_token);
         commit('setAuthenticated', true);
         return response.data.access_token;
@@ -80,26 +70,19 @@ const store = createStore({
         throw error;
       }
     },
-    async logout({
-      commit
-    }) {
+    async logout({ commit }) {
       try {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('contribution');
         localStorage.removeItem('countries');
         localStorage.removeItem('form_safari');
-
-        await axios.post('/logout', {}, {
-          withCredentials: true
-        });
-
+        await axios.post('/logout', {}, { withCredentials: true });
         commit('clearAuthData');
-
         router.push('/login');
       } catch (error) {
         console.error('Logout error:', error);
       }
-    },
+    }
   },
   getters: {
     isAuthenticated(state) {
@@ -108,32 +91,33 @@ const store = createStore({
     accessToken(state) {
       return state.accessToken;
     },
-    productCode(state){
-      return state.productCode
+    productCode(state) {
+      return state.productCode;
     },
-    productName(state){
-      return state.productName
+    productName(state) {
+      return state.productName;
     },
-    abrorCont(state){
-      return state.abrorCont
+    abrorCont(state) {
+      return state.abrorCont;
     },
-    carBrand(state){
-      return state.carBrand
+    carBrand(state) {
+      return state.carBrand;
     },
-    carType(state){
-      return state.carType
+    carType(state) {
+      return state.carType;
     },
-    cars(state){
-      return state.cars
+    cars(state) {
+      return state.cars;
     },
-    brands(state){
-      return state.brands
-    },
-    
+    brands(state) {
+      return state.brands;
+    }
   },
-  plugins: [createPersistedState({
-    paths: ['productCode', 'productName', 'abrorCont', 'carBrand', 'carType', 'cars', 'brands'] 
-  })],
+  plugins: [
+    createPersistedState({
+      paths: ['productCode', 'productName', 'abrorCont', 'carBrand', 'carType', 'cars', 'brands',]
+    })
+  ]
 });
 
 store.subscribe((mutation, state) => {

@@ -91,7 +91,8 @@
                   </v-card>
                 </v-dialog>
                 <v-card flat class="mt-3">
-                  <div v-if="policy.length === 0" class="text-center"> Belum ada Polis
+                  <div v-if="policy.length === 0" class="text-center">
+                    Belum ada Polis
                   </div>
                   <v-row>
                     <v-col
@@ -186,7 +187,11 @@
                   >
                   <span style="color: #212121">Takaful Abror</span>
                 </div>
-                <v-dialog v-model="dialog_policy_abror" persistent max-width="700">
+                <v-dialog
+                  v-model="dialog_policy_abror"
+                  persistent
+                  max-width="700"
+                >
                   <template v-slot:activator="{ props }">
                     <v-btn v-bind="props" prepend-icon="mdi-book-search">
                       <span class="body">Cari Polis</span>
@@ -268,14 +273,18 @@
                     </v-card-text>
                     <v-card-actions class="pt-0">
                       <v-spacer></v-spacer>
-                      <v-btn color="#001F48" @click="dialog_policy_abror = false">
+                      <v-btn
+                        color="#001F48"
+                        @click="dialog_policy_abror = false"
+                      >
                         <span class="body">Tutup</span>
                       </v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
                 <v-card flat class="mt-3">
-                  <div v-if="policy_abror.length === 0" class="text-center">Belum ada Polis
+                  <div v-if="policy_abror.length === 0" class="text-center">
+                    Belum ada Polis
                   </div>
                   <v-row>
                     <v-col
@@ -439,7 +448,7 @@ export default {
       "Leaf",
     ],
     countries: [],
-    dialog_policy_abror:false,
+    dialog_policy_abror: false,
 
     form_data: {
       product: null,
@@ -460,7 +469,9 @@ export default {
         });
         if (response.data.status) {
           if (response.data.data == null) {
-            this.DialogActive("Belum ada polis yang terdaftar!");
+            if (name !== "" && dest !== "") {
+              this.DialogActive("Belum ada polis yang terdaftar!");
+            }
             this.dialog_policy = false;
           } else {
             this.policy = response.data.data;
@@ -481,7 +492,9 @@ export default {
         });
         if (response.data.status) {
           if (response.data.data == null) {
-            this.DialogActive("Belum ada polis yang terdaftar!");
+            if (car !== "" && sdate !== "") {
+              this.DialogActive("Belum ada polis yang terdaftar!");
+            }
             this.dialog_policy_abror = false;
           } else {
             this.policy_abror = response.data.data;

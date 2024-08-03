@@ -583,6 +583,8 @@ export default {
       vehicle_price: null,
       percentage: null,
       premi: null,
+
+      isInitialized: false,
     };
   },
   computed: {
@@ -630,13 +632,6 @@ export default {
       }).format(this.premi)} /tahun`;
     },
   },
-  watch: {
-    "form_data.car_brand": function (newBrand) {
-      if (newBrand) {
-        this.form_data.car_type = null;
-      }
-    },
-  },
   methods: {
     async Enroll() {
       this.confirm_dialog = false;
@@ -650,7 +645,7 @@ export default {
         const date = new Date(this.selected_date);
         date.setFullYear(date.getFullYear() + 1);
         const newDate = date.toISOString().split("T")[0];
-        this.form_data.date_end = newDate
+        this.form_data.date_end = newDate;
         const response = await axios.post("/req-abror", {
           ...this.form_data,
         });
@@ -818,16 +813,27 @@ export default {
     },
   },
   mounted() {
+    this.isInitialized = false;
     this.contribution = this.abrorCont;
     this.form_data.contribution = this.abrorCont;
     this.form_data.car_brand = this.carBrand;
     this.form_data.car_type = this.carType;
     this.select = this.cars;
     this.car_brand = this.brands;
+    this.$nextTick(() => {
+      this.isInitialized = true;
+    });
+  },
+  watch: {
+    "form_data.car_brand": function (newBrand) {
+      if (this.isInitialized && newBrand) {
+        this.form_data.car_type = null;
+      }
+    },
   },
 };
 </script>
-<style>
+<style scoped>
 .blue-text {
   color: #001f48;
   font-size: large;

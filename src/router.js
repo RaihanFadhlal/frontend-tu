@@ -101,11 +101,10 @@ const routes = [{
     }
   },
   {
-    path: '/admin-dashboard',
+    path: '/admin',
     component: AdminApp,
     meta: {
       requiresAuth: true,
-      requiresAdmin: true,  // Halaman yang hanya dapat diakses oleh admin
     }
   },
 ];
@@ -118,16 +117,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (store.state.isAuthenticated) {
-      if (to.matched.some(record => record.meta.requiresAdmin)) {
-        const userType = store.state.userType;
-        if (userType === 'admin') {
-          next();
-        } else {
-          next('/'); 
-        }
-      } else {
-        next();
-      }
+      next();
     } else {
       try {
         await store.dispatch('refreshToken');
@@ -144,6 +134,7 @@ router.beforeEach(async (to, from, next) => {
     next();
   }
 });
+
 
 
 export default router;

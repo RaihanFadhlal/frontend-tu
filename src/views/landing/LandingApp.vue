@@ -24,7 +24,17 @@
                 <div class="d-flex flex-column align-center ml-2 mr-6 my-4">
                   <h2>{{ product.name }}</h2>
                   <h3 style="color: #5b5b5b">{{ product.detail }}</h3>
-                  <v-dialog max-width="800">
+                  <v-btn
+                    v-if="product.path == '/abror'"
+                    v-bind="activatorProps"
+                    height="30px"
+                    :color="product.color"
+                    class="font-weight-bold text-white mt-2"
+                    route
+                    :to="product.path"
+                    >Lihat Produk</v-btn
+                  >
+                  <v-dialog v-else max-width="800">
                     <template v-slot:activator="{ props: activatorProps }">
                       <v-btn
                         v-bind="activatorProps"
@@ -269,11 +279,11 @@ export default {
 
 @media screen and (max-width: 600px) {
   .why-takaful {
-  font-size: 40px;
-  margin-top: 20px;
-}
-.card2 {
-  margin-left: 35px;
-}
+    font-size: 40px;
+    margin-top: 20px;
+  }
+  .card2 {
+    margin-left: 35px;
+  }
 }
 </style>
