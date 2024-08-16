@@ -1,22 +1,33 @@
 //main
-import { createApp } from 'vue'
+import {
+  createApp
+} from 'vue'
 import App from './App.vue'
 import './global.css'
 //vue routes
 import router from './router'
-import store from './store' 
+import store from './store'
 import axios from './axios';
 
 //vuetify
 import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
+import {
+  createVuetify
+} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
 //localization
-import { id } from 'vuetify/locale'
-import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n'
-import { createI18n, useI18n } from 'vue-i18n'
+import {
+  id
+} from 'vuetify/locale'
+import {
+  createVueI18nAdapter
+} from 'vuetify/locale/adapters/vue-i18n'
+import {
+  createI18n,
+  useI18n
+} from 'vue-i18n'
 
 const messages = {
   id: {

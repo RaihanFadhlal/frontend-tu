@@ -2,8 +2,8 @@
   <v-app class="body">
     <Navbar />
     <v-main>
-      <v-container class="container-profile">
-        <AccountMenu />
+      <v-container>
+        <AccountMenu/>
         <v-card>
           <v-row class="d-flex">
             <v-col class="hidden-md-and-down" :lg="rail === false ? '3' : '1'">

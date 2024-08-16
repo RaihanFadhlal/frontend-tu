@@ -98,7 +98,7 @@ export default {
 
   data() {
     return {
-      logo: new URL("../assets/logoputih.jpg", import.meta.url).href,
+      logo: new URL("/assets/logoputih.jpg", import.meta.url).href,
       drawer: false,
       menu: [
         { icon: "home", name: "Beranda", child: "", term: "any" },

@@ -2,7 +2,7 @@
   <v-app class="body">
     <Navbar />
     <v-main>
-      <v-container class="container-profile">
+      <v-container>
         <AccountMenu />
         <v-card>
           <v-row class="d-flex">
@@ -182,7 +182,7 @@
               <span>
                 <v-img
                   :src="
-                    UploadIcon('../../assets/request/', 'logotransparan.png')
+                    UploadIcon('/assets/request/', 'logotransparan.png')
                   "
                   width="60"
                   height="60"

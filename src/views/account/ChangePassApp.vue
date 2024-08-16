@@ -165,7 +165,7 @@ export default {
         if (response.data.status) {
           this.DialogActive("Berhasil!", "Password Berhasil Diganti");
           setTimeout(() => {
-            location.Reload();
+            location.reload();
           }, 2000);
         } else {
           this.DialogActive("Gagal Ganti Password");

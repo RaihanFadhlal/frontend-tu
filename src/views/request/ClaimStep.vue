@@ -15,7 +15,7 @@
           "
         >
           <v-img
-            :src="UploadIcon('../../assets/process/', item.img)"
+            :src="UploadIcon('/assets/process/', item.img)"
             width="70"
             contain
             class="mx-auto"
@@ -23,18 +23,17 @@
           {{ item.detail }}
           <v-img
             v-if="i < 4"
-            :src="UploadIcon('../../assets/process/', 'panah.png')"
+            :src="UploadIcon('/assets/process/', 'panah.png')"
             width="15"
             contain
             class="mx-auto mt-1"
             style="transform: rotate(90deg)"
           ></v-img>
+          <div v-if="i == 4" style="background-color: #001f48; height: 500px;"></div>
         </v-card>
       </v-row>
     </v-col>
-    <v-col cols="3" class="hidden-xs">
-
-    </v-col>
+    <v-col cols="3" class="hidden-xs"> </v-col>
   </v-app>
 </template>
 

@@ -2,7 +2,7 @@
   <v-app class="body">
     <Navbar />
     <v-main>
-      <v-container class="container-profile">
+      <v-container >
         <AccountMenu />
         <v-card>
           <v-row class="d-flex">

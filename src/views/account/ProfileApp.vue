@@ -314,7 +314,7 @@ export default {
         if (response.data.status) {
           this.DialogActive("Berhasil!", "Data Diri Berhasil Diupdate");
           setTimeout(() => {
-            location.Reload();
+            location.reload();
           }, 2000);
         } else {
           this.DialogActive("Gagal Update Data");

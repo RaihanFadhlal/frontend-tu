@@ -9,7 +9,7 @@
         nav
         height="60px"
         :prepend-avatar="
-          UploadIcon('../../assets/request/', 'logotransparan.png')
+          UploadIcon('/assets/request/', 'logotransparan.png')
         "
         @click="rail = !rail"
       >

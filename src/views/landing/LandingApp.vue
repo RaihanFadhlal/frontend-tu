@@ -17,7 +17,7 @@
                 style="border-radius: 16px"
               >
                 <v-img
-                  :src="UploadIcon('../../assets/landing/', product.icon)"
+                  :src="UploadIcon('/assets/landing/', product.icon)"
                   class="mx-2"
                   width="50px"
                 ></v-img>
@@ -57,13 +57,13 @@
         <!-- Why Takaful -->
         <v-col cols="11" class="mx-auto mt-10">
           <v-card flat color="#E3F2FD" class="d-md-flex">
-            <v-col class="why-takaful" cols="12" md="6" lg="6">
+            <v-col class="why-takaful" cols="12" md="6">
               Kenapa Harus Takaful Umum ?
             </v-col>
-            <v-col cols="12" md="6" lg="6">
+            <v-col cols="12" md="6">
               <v-container>
                 <v-row>
-                  <v-col v-for="(item, i) in reasons" :key="i" cols="12" md="5">
+                  <v-col v-for="(item, i) in reasons" :key="i" cols="12" sm="6" md="5">
                     <v-card
                       class="card2 d-flex pa-2"
                       :style="{ borderLeft: '4px solid ' + item.color }"
@@ -80,10 +80,7 @@
                         <v-img
                           style="width: 50px"
                           :src="
-                            UploadIcon(
-                              '../../assets/landing/reasons/',
-                              item.img
-                            )
+                            UploadIcon('/assets/landing/reasons/', item.img)
                           "
                         ></v-img>
                       </div>
@@ -107,7 +104,7 @@
             >
               Proses Klaim
             </div>
-            <div class="owl-carousel">
+            <div class="d-flex overflow-x-auto">
               <div
                 v-for="(item, i) in process"
                 :key="i"
@@ -116,7 +113,7 @@
               >
                 <v-col class="d-flex flex-column align-center">
                   <v-img
-                    :src="UploadIcon('../../assets/landing/process/', item.img)"
+                    :src="UploadIcon('/assets/landing/process/', item.img)"
                     width="150"
                   ></v-img>
                   <span style="text-align: center">{{ item.detail }}</span>
@@ -124,9 +121,7 @@
                 <v-col class="d-flex flex-column align-center">
                   <v-img
                     v-if="i !== 4"
-                    :src="
-                      UploadIcon('../../assets/landing/process/', 'panah.png')
-                    "
+                    :src="UploadIcon('/assets/landing/process/', 'panah.png')"
                     :style="{ marginBottom: i > 1 ? '20px' : '0px' }"
                     width="30px"
                   ></v-img
@@ -214,15 +209,15 @@ export default {
           img: "berkas.png",
         },
         {
-          detail: "Survey oleh Takaful Umum",
+          detail: "Survey Klaim",
           img: "survey.png",
         },
         {
-          detail: "Klaim diterima dan dibayar",
+          detail: "Klaim dibayar",
           img: "klaim.png",
         },
         {
-          detail: "Klaim sudah selesai",
+          detail: "Klaim selesai",
           img: "selesai.png",
         },
       ],
@@ -238,25 +233,6 @@ export default {
     UploadIcon(path, name) {
       return new URL(path + name, import.meta.url).href;
     },
-  },
-  mounted() {
-    $(document).ready(() => {
-      $(".owl-carousel").owlCarousel({
-        responsive: {
-          0: {
-            items: 2,
-          },
-          600: {
-            items: 3,
-          },
-          1000: {
-            items: 5,
-          },
-        },
-        autoplay: true,
-        autoplaySpeed: 10,
-      });
-    });
   },
 };
 </script>

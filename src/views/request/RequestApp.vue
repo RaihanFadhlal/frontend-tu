@@ -22,7 +22,7 @@
           <v-card class="d-flex">
             <v-col class="fixed-img pa-0 mt-11 hidden-xs" cols="4">
               <v-img
-                :src="UploadIcon('../../assets/request/', 'coba3.png')"
+                :src="UploadIcon('/assets/request/', 'coba3.png')"
                 cover
                 height="625"
               >
@@ -33,7 +33,7 @@
               <v-img
                 class="mt-10 hidden-sm-and-up rounded-lg"
                 contain
-                :src="UploadIcon('../../assets/request/', 'mobile.png')"
+                :src="UploadIcon('/assets/request/', 'mobile.png')"
               ></v-img>
               <v-row class="mt-14 mb-4 justify-center">
                 <v-icon class="hidden-xs mr-2 ml-3" color="#001F48"

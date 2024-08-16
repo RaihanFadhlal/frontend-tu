@@ -5,7 +5,7 @@
       <v-row class="explore-row d-flex ml-2 ml-sm-15 mt-4">
         <v-col cols="6" sm="4" md="3" lg="2">
           <v-img
-            :src="UploadIcon('../../assets/explore/', 'logo_abor.png')"
+            :src="UploadIcon('/assets/explore/', 'logo_abor.png')"
           ></v-img>
         </v-col>
       </v-row>
@@ -35,7 +35,7 @@
                     <v-col class="col-1-5">
                       <v-img
                         :src="
-                          UploadIcon('../../assets/landing/', 'logo_abror.png')
+                          UploadIcon('/assets/landing/', 'logo_abror.png')
                         "
                       ></v-img
                     ></v-col>
@@ -85,7 +85,7 @@
                     <v-col class="col-1-5">
                       <v-img
                         :src="
-                          UploadIcon('../../assets/landing/', 'logo_abror.png')
+                          UploadIcon('/assets/landing/', 'logo_abror.png')
                         "
                       ></v-img
                     ></v-col>

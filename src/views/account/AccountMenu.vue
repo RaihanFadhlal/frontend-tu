@@ -4,7 +4,7 @@
       <v-btn class="hidden-lg-and-up mb-5 font-weight-bold pl-1" v-bind="props">
         <v-img
           cover
-          :src="UploadIcon('../../assets/request/', 'logotransparan.png')"
+          :src="UploadIcon('/assets/request/', 'logotransparan.png')"
           width="30px"
           class="mr-1"
         ></v-img>

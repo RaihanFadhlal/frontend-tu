@@ -46,6 +46,17 @@ const store = createStore({
         if (response.data.status) {
           commit('setAccessToken', response.data.data.access_token);
           commit('setAuthenticated', true);
+          console.log('All cookies:', document.cookie);
+          const userType = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('user_type='))
+          ?.split('=')[1];
+
+          console.log('q : ' + userType)
+  
+        if (userType === 'admin') {
+          this.$router.push("/admin")
+        }
         } else {
           commit('setAuthenticated', false);
           commit('setAccessToken', '');

@@ -1,6 +1,6 @@
 <template>
   <v-app class="body">
-    <v-img :src="UploadIcon('../../assets/auth/', 'bg.png')" cover>
+    <v-img :src="UploadIcon('/assets/auth/', 'bg.png')" cover>
       <div ref="alert">
         <v-alert
           v-if="show_alert"
@@ -16,7 +16,7 @@
       <div ref="logo" class="d-flex justify-center mt-5">
         <v-card flat>
           <v-img
-            :src="UploadIcon('../../assets/auth/', 'logo.png')"
+            :src="UploadIcon('/assets/auth/', 'logo.png')"
             width="250px"
           ></v-img>
         </v-card>
@@ -25,7 +25,7 @@
         <v-img
           v-for="(cloud, i) in clouds"
           :key="i"
-          :src="UploadIcon('../../assets/auth/', 'cloud.png')"
+          :src="UploadIcon('/assets/auth/', 'cloud.png')"
           :style="{
             top: cloud.top,
             left: cloud.left,
@@ -49,7 +49,7 @@
                 class="mb-2"
                 v-model="form_data.email"
                 :rules="[Required]"
-                label="ID"
+                label="Email"
                 flat
                 variant="solo"
                 density="comfortable"
@@ -113,7 +113,6 @@
 <script>
 import { gsap, Power0 } from "gsap";
 import { mapActions } from "vuex";
-// import func from "../function";
 
 export default {
   name: "LoginApp",
@@ -157,16 +156,20 @@ export default {
         const response = await this.$store.dispatch("login", formdata);
         if (response.status) {
           this.DialogActive("Login Berhasil");
-          setTimeout(() => {
-            this.$router.push("/");
-          }, 1000);
+          if (response.message == "admin") {
+            setTimeout(() => {
+              this.$router.push("/admin");
+            }, 1000);
+          } else {
+            setTimeout(() => {
+              this.$router.push("/");
+            }, 1000);
+          }
         } else {
-          this.DialogActive("Login Gagal", response.message);
+          this.DialogActive("Login Gagal");
         }
       } catch (e) {
-        this.DialogActive(
-          "Login Gagal",e
-        );
+        this.DialogActive("Login Gagal");
       }
     },
     ValidateForm() {
@@ -218,7 +221,7 @@ export default {
       ease: Power0.easeNone,
       duration: 10,
       onComplete: () => {
-        gsap.set(cloud, { x: '-700px' });
+        gsap.set(cloud, { x: "-700px" });
         gsap.to(cloud, {
           x: screenwidth,
           ease: Power0.easeNone,

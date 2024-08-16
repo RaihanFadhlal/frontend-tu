@@ -4,7 +4,7 @@
       <Navbar />
       <v-row class="explore-row d-flex ml-2 ml-sm-15 mt-4">
         <v-col cols="6" sm="4" md="3" lg="2">
-          <v-img :src="UploadIcon('../../assets/explore/', 'logo.png')"></v-img>
+          <v-img :src="UploadIcon('/assets/explore/', 'logo.png')"></v-img>
         </v-col>
         <v-col cols="6">
           <v-dialog max-width="800">
@@ -58,7 +58,7 @@
                       <v-img
                         :src="
                           UploadIcon(
-                            '../../assets/request/',
+                            '/assets/request/',
                             'logotransparan.png'
                           )
                         "

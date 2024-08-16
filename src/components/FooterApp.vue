@@ -78,7 +78,7 @@ export default {
   name: "FooterApp",
   data() {
     return {
-      logo: new URL("../assets/mantapberhijrah.png", import.meta.url).href,
+      logo: new URL("/assets/mantapberhijrah.png", import.meta.url).href,
       contact: [
         {
           icon: "mdi-map-marker",

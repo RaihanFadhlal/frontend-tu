@@ -10,7 +10,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "baseUrl": ".",
+    "baseUrl": "http://localhost:5173",
     "paths": {
       "@/*": ["src/*"]
     }

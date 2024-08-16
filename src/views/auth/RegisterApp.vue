@@ -1,10 +1,10 @@
 <template>
   <v-app class="body">
-    <v-img :src="UploadIcon('../../assets/auth/', 'bg.png')" cover>
+    <v-img :src="UploadIcon('/assets/auth/', 'bg.png')" cover>
       <div class="d-flex justify-center" ref="logo">
         <v-card flat>
           <v-img
-            :src="UploadIcon('../../assets/auth/', 'logo.png')"
+            :src="UploadIcon('/assets/auth/', 'logo.png')"
             width="220px"
           ></v-img>
         </v-card>
@@ -13,7 +13,7 @@
         <v-img
           v-for="(cloud, i) in clouds"
           :key="i"
-          :src="UploadIcon('../../assets/auth/', 'cloud.png')"
+          :src="UploadIcon('/assets/auth/', 'cloud.png')"
           :style="{
             top: cloud.top,
             left: cloud.left,
@@ -183,9 +183,9 @@ export default {
     },
     ValidateForm() {
       if (!this.form) {
-        this.DialogActive("Gagal Login", "Input Data Salah");
+        this.DialogActive("Gagal Register", "Input Data Salah");
       } else if (this.form_data.conf_pass != this.form_data.password) {
-        this.DialogActive("Gagal Login", "Password Belum Sesuai");
+        this.DialogActive("Gagal Register", "Password Belum Sesuai");
       } else {
         this.ProcessRegister(
           this.form_data.name,

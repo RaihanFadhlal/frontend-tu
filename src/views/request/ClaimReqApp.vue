@@ -279,7 +279,7 @@
                 >
                 <span class="blue-text">Detail Klaim</span>
               </v-row>
-              <v-form ref="form" class="body">
+              <v-form v-model="form_req" class="body">
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-menu
@@ -370,7 +370,6 @@
             </v-col>
           </v-card>
         </v-stepper-window-item>
-
         <v-stepper-window-item value="3">
           <v-card class="d-flex">
             <ClaimStep />
@@ -780,7 +779,6 @@ export default {
       } else {
         link = '/req-claim-abror'
       }
-      console.log(link)
       try {
         const response = await axios.post(link, {
           ...this.form_data,
@@ -836,7 +834,7 @@ export default {
       return new URL(path + name, import.meta.url).href;
     },
     CheckForm() {
-      if (!this.$refs.form.validate()) {
+      if (!this.form_req) {
         this.dialog_title = "Form belum sesuai";
         this.dialog_text = "Isi form sesuai dengan aturan!";
         this.dialog_err = true;
